@@ -1,13 +1,15 @@
 import React from 'react'
 
 // import { homeStyles } from "./homeStyle";
-import Navbar from '../navbar/Navbar' 
 
 const Home = () => {
 
+    React.useEffect(() => {
+        localStorage.removeItem('maps')
+    })
+
     return (
         <>
-            <Navbar />
             <div>Home</div>
         </>
     )
