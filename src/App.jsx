@@ -6,6 +6,7 @@ import {
   Route,
 } from "react-router-dom";
 
+import './appStyle.css'
 import Home from './components/home/Home'
 import Maps from './components/maps/Maps'
 import Navbar from './components/navbar/Navbar'
@@ -13,26 +14,29 @@ import Sidebar from './components/sidebar/Sidebar'
 
 const App = () => {
 
+
   const [sideB, setSideB] = React.useState(false)
-  
-  React.useEffect(()=>{
+
+  React.useEffect(() => {
     const side = localStorage.getItem('maps') ?? ""
-    if(side){
+    if (side) {
       setSideB(true)
-    }else{
+    } else {
       setSideB(false)
     }
-  },[sideB])
+  }, [sideB])
 
   return (
-    <div className="App">
-      <Navbar />
-      {sideB ? <Sidebar /> : null}
+    <div className='app'>
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />}></Route>
-          <Route path="/maps" element={<Maps />}></Route>
-        </Routes>
+        {sideB ? <Sidebar /> : null}
+        <div className='container'>
+          <Navbar />
+          <Routes>
+            <Route path="/" element={<Home />}></Route>
+            <Route path="/maps" element={<Maps />}></Route>
+          </Routes>
+        </div>
       </BrowserRouter>
     </div>
   );
