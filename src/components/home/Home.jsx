@@ -4,9 +4,14 @@ import React from 'react'
 
 const Home = () => {
 
+    const side = localStorage.getItem('maps') ?? ""
+    
     React.useEffect(() => {
-        localStorage.removeItem('maps')
-    })
+        if(side){
+            localStorage.removeItem('maps')
+            window.location.reload(true);
+        }
+    },[side])
 
     return (
         <>

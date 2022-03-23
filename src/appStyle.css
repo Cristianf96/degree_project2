@@ -1,0 +1,7 @@
+.app{
+    display: flex;
+}
+.container{
+    /* background-color: lightblue; */
+    flex: 6;
+}
