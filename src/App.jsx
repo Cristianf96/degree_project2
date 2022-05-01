@@ -7,10 +7,11 @@ import {
 } from "react-router-dom";
 
 import './appStyle.css'
-import Home from './components/home/Home'
-import Maps from './components/maps/Maps'
-import Navbar from './components/navbar/Navbar'
-import Sidebar from './components/sidebar/Sidebar'
+import Home from './content/home/Home'
+import Maps from './content/maps/Maps'
+import Navbar from './content/navbar/Navbar'
+import Sidebar from './content/sidebar/Sidebar'
+import Tips from './content/tips/Tips';
 
 const App = () => {
 
@@ -35,6 +36,7 @@ const App = () => {
           <Routes>
             <Route path="/" element={<Home />}></Route>
             <Route path="/maps" element={<Maps />}></Route>
+            <Route path="/tips" element={<Tips />}></Route>
           </Routes>
         </div>
       </BrowserRouter>
