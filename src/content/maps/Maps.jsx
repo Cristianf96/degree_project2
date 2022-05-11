@@ -15,31 +15,21 @@ import DialogSearch from '../../component/Dialogs/DialogSearch';
 import DialogTips from '../../component/Dialogs/DialogTips';
 import DialogUsers from '../../component/Dialogs/DialogUsers';
 
-import { logout } from '../../utils/firebase';
+import { logout, queryData } from '../../utils/firebase';
 
-export default function Home() {
-  const { isLoaded } = useLoadScript({
-    googleMapsApiKey: process.env.REACT_APP_GOOGLEMAPS_APIKEY
-  })
-
-  if (!isLoaded) return <div>Loading...</div>
-  return <Maps />
-}
-
-const actions = [
+let actions = [
   { icon: <SearchIcon />, name: 'Search' },
   { icon: <TipsAndUpdatesIcon />, name: 'Tips' },
   { icon: <PersonIcon />, name: 'Users' },
   { icon: <ForumIcon />, name: 'Forum' },
 ];
 
-if (localStorage.getItem('user')) actions.push({ icon: <LogoutIcon />, name: 'Logout' })
-
 const Alert = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
 function Maps() {
+  const session = localStorage.getItem('user') ?? ""
   const center = useMemo(() => ({ lat: 6.24788328286821, lng: -75.560914441354 }), [])
   const Markers = [{ lat: 6.24788328286821, lng: -75.560914441354 }, { lat: 44, lng: -80 }]
   const [open, setOpen] = React.useState(false);
@@ -54,12 +44,32 @@ function Maps() {
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
+  const { isLoaded } = useLoadScript({
+    googleMapsApiKey: process.env.REACT_APP_GOOGLEMAPS_APIKEY
+  })
+
   useEffect(() => {
-    console.log('object');
-    if (reload) {
-      setReload(false)
+    const getInformation = async () => {
+      const found = actions.find(element => element.name === 'Logout');
+      if (reload) {
+        setReload(false)
+      }
+      if (session && !found) {
+        actions = [
+          { icon: <PersonIcon />, name: 'Profile' },
+          { icon: <SearchIcon />, name: 'Search' },
+          { icon: <TipsAndUpdatesIcon />, name: 'Tips' },
+          { icon: <ForumIcon />, name: 'Forum' },
+          { icon: <LogoutIcon />, name: 'Logout' }
+        ]
+        const dataUsers = await queryData('users')
+        const users = dataUsers.docs
+        const user = users.find(doc => doc?.data().uid === session)?.data()
+        console.log(user)
+      }
     }
-  }, [reload])
+    getInformation()
+  }, [reload, session])
 
   const handleCloseAlert = (event, reason) => {
     if (reason === 'clickaway') {
@@ -76,8 +86,6 @@ function Maps() {
   };
 
   const handleOption = (action) => {
-    // console.log(action);
-    // handleClose()
     switch (action) {
       case 'Search':
         setOpenDialogSearch(true)
@@ -90,6 +98,7 @@ function Maps() {
         break;
       case 'Logout':
         logout()
+        window.location.reload()
         break;
 
       default:
@@ -104,6 +113,8 @@ function Maps() {
     handleClose()
     setReload(true)
   }
+
+  if (!isLoaded) return <div>Loading...</div>
 
   return (
     <>
@@ -173,3 +184,5 @@ function Maps() {
     </>
   )
 }
+
+export default Maps

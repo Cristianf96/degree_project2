@@ -192,7 +192,7 @@ const DialogUsers = (props) => {
                     <Box>
                         <Stack direction={'row'} spacing={1}>
                             <Button onClick={() => signUp ? addUsers(true) : addUsers(false)} variant="contained" color="success">
-                                Registrarme
+                                {signUp ? 'Registrarme' : 'Iniciar sesion'}
                             </Button>
                             <Button onClick={handleClose} variant="contained" color="error">
                                 Atras
