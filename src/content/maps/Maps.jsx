@@ -1,16 +1,21 @@
-import React, { useMemo, useState } from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import { GoogleMap, useLoadScript, Marker } from '@react-google-maps/api'
 
-import { Box, SpeedDial, SpeedDialAction, Backdrop } from '@mui/material';
+import { Box, SpeedDial, SpeedDialAction, Backdrop, Snackbar } from '@mui/material';
+import MuiAlert from '@mui/material/Alert';
 // import AddIcon from '@mui/icons-material/Add';
 import SearchIcon from '@mui/icons-material/Search';
 import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
-import PrintIcon from '@mui/icons-material/Print';
-import ShareIcon from '@mui/icons-material/Share';
+import PersonIcon from '@mui/icons-material/Person';
+import ForumIcon from '@mui/icons-material/Forum';
+import LogoutIcon from '@mui/icons-material/Logout';
 import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 
 import DialogSearch from '../../component/Dialogs/DialogSearch';
 import DialogTips from '../../component/Dialogs/DialogTips';
+import DialogUsers from '../../component/Dialogs/DialogUsers';
+
+import { logout } from '../../utils/firebase';
 
 export default function Home() {
   const { isLoaded } = useLoadScript({
@@ -24,27 +29,67 @@ export default function Home() {
 const actions = [
   { icon: <SearchIcon />, name: 'Search' },
   { icon: <TipsAndUpdatesIcon />, name: 'Tips' },
-  { icon: <PrintIcon />, name: 'Print' },
-  { icon: <ShareIcon />, name: 'Share' },
+  { icon: <PersonIcon />, name: 'Users' },
+  { icon: <ForumIcon />, name: 'Forum' },
 ];
+
+if (localStorage.getItem('user')) actions.push({ icon: <LogoutIcon />, name: 'Logout' })
+
+const Alert = React.forwardRef(function Alert(props, ref) {
+  return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
+});
 
 function Maps() {
   const center = useMemo(() => ({ lat: 6.24788328286821, lng: -75.560914441354 }), [])
   const Markers = [{ lat: 6.24788328286821, lng: -75.560914441354 }, { lat: 44, lng: -80 }]
   const [open, setOpen] = React.useState(false);
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
+  const [reload, setReload] = React.useState(false);
   const [openDialogSearch, setOpenDialogSearch] = useState(false)
   const [openDialogTips, setOpenDialogTips] = useState(false)
+  const [openDialogUsers, setOpenDialogUsers] = useState(false)
+  const [openAlert, setOpenAlert] = React.useState(false);
+  const [severity, setSeverity] = React.useState('');
+  const [message, setMessage] = React.useState('');
+
+  const handleOpen = () => setOpen(true);
+  const handleClose = () => setOpen(false);
+
+  useEffect(() => {
+    console.log('object');
+    if (reload) {
+      setReload(false)
+    }
+  }, [reload])
+
+  const handleCloseAlert = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+
+    setOpenAlert(false);
+  };
+
+  const handleClickAlert = (sev, mes) => {
+    setMessage(mes)
+    setSeverity(sev)
+    setOpenAlert(true);
+  };
 
   const handleOption = (action) => {
-    console.log(action);
+    // console.log(action);
+    // handleClose()
     switch (action) {
       case 'Search':
         setOpenDialogSearch(true)
         break;
       case 'Tips':
         setOpenDialogTips(true)
+        break;
+      case 'Users':
+        setOpenDialogUsers(true)
+        break;
+      case 'Logout':
+        logout()
         break;
 
       default:
@@ -55,6 +100,9 @@ function Maps() {
   const handleCloseDialog = () => {
     setOpenDialogSearch(false)
     setOpenDialogTips(false)
+    setOpenDialogUsers(false)
+    handleClose()
+    setReload(true)
   }
 
   return (
@@ -101,7 +149,7 @@ function Maps() {
             </Box>
             {Markers.map((marker, key) => {
               return (
-                <Marker key={key} position={marker} />
+                <Marker key={key} position={marker} onClick={() => console.log(marker.lat, marker.lng)} />
               )
             })}
           </GoogleMap>
@@ -112,9 +160,15 @@ function Maps() {
           left: 20,
           zIndex: 1,
         }}>
-          <DialogSearch open={openDialogSearch} onClose={handleCloseDialog} />
-          <DialogTips open={openDialogTips} onClose={handleCloseDialog} />
+          <DialogSearch open={openDialogSearch} onClose={handleCloseDialog} setReload={setReload} />
+          <DialogTips open={openDialogTips} onClose={handleCloseDialog} setReload={setReload} />
+          <DialogUsers open={openDialogUsers} onClose={handleCloseDialog} setReload={setReload} handleClickAlert={handleClickAlert} />
         </Box>
+        <Snackbar open={openAlert} autoHideDuration={2000} onClose={handleCloseAlert}>
+          <Alert onClose={handleCloseAlert} severity={severity} sx={{ width: '100%' }}>
+            {message}
+          </Alert>
+        </Snackbar>
       </Box>
     </>
   )
