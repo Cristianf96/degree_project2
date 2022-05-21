@@ -1,21 +1,25 @@
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Stack, Box, Typography, TextField, Switch } from '@mui/material';
 
 import { registrarUsuario, iniciarSesion } from '../../utils/firebase';
+
+import emailjs from '@emailjs/browser';
 
 const DialogUsers = (props) => {
 
     const [error, setError] = useState(false)
     const [signIn, setSignIn] = useState(false)
     const [signUp, setSignUp] = useState(false)
-    const [data, setData] = useState({ email: '', name: '', password: '', confirmPassword: '' })
+    const [data, setData] = useState({ email: '', name: '', password: '', confirmPassword: '', message: '' })
     const [checked, setChecked] = React.useState(true);
+
+    const form = useRef();
 
     const handleClose = () => {
         setSignUp(false)
         setSignIn(false)
         setError(false)
-        setData({ email: '', name: '', password: '', confirmPassword: '' })
+        setData({ email: '', name: '', password: '', confirmPassword: '', message: '' })
     }
 
     const addUsers = async (add) => {
@@ -23,7 +27,7 @@ const DialogUsers = (props) => {
             if (data.password === data.confirmPassword && data.password.length >= 6) {
                 setError(false)
                 try {
-                    await registrarUsuario(data.email, data.name, data.password, checked ? 'admin' : 'usuario')
+                    await registrarUsuario(data.email, data.name, data.password, 'usuario')
                     handleClose()
                     props.handleClickAlert('success', 'Se creo la cuenta con satisfaccion')
                     props.onClose()
@@ -46,6 +50,16 @@ const DialogUsers = (props) => {
             setData({ email: '', name: '', password: '', confirmPassword: '' })
         }
     }
+
+    const sendEmail = () => {
+        // e.preventDefault();
+        emailjs.sendForm('service_zo4kks8', 'template_hu6jnu2', form.current, 'JVvitlmjjpFFhJ_AX')
+            .then((result) => {
+                console.log(result.text);
+            }, (error) => {
+                console.log(error.text);
+            });
+    };
 
     const handleChangeChecked = (event) => {
         setChecked(event.target.checked);
@@ -100,77 +114,98 @@ const DialogUsers = (props) => {
                 )}
                 {signUp && (
                     <Box>
-                        <Typography variant="h5" align='center'>
-                            Registrarse
-                        </Typography>
-                        <TextField
-                            autoFocus
-                            margin="dense"
-                            id="email"
-                            label="Email Address"
-                            type="email"
-                            fullWidth
-                            variant="outlined"
-                            onChange={(e) => setData(data => ({ ...data, email: e.target.value }))}
-                            error={error && data.email === ''}
-                            helperText={error && data.email === '' ? 'Este campo es requerido' : null}
-                        />
-                        <TextField
-                            // autoFocus
-                            margin="dense"
-                            id="name"
-                            label="Name"
-                            type="text"
-                            fullWidth
-                            variant="outlined"
-                            onChange={(e) => setData(data => ({ ...data, name: e.target.value }))}
-                            error={error && data.name === ''}
-                            helperText={error && data.name === '' ? 'Este campo es requerido' : null}
-                        />
-                        <Stack direction={'row'} spacing={1}>
-                            <Box>
-                                <TextField
-                                    // autoFocus
-                                    margin="dense"
-                                    id="password"
-                                    label="Password"
-                                    type="password"
-                                    fullWidth
-                                    variant="outlined"
-                                    onChange={(e) => setData(data => ({ ...data, password: e.target.value }))}
-                                    error={error && data.password === ''}
-                                    helperText={error && data.password === '' ? 'Este campo es requerido' : null}
-                                />
-                            </Box>
-                            <Box>
-                                <TextField
-                                    // autoFocus
-                                    fullWidth
-                                    margin="dense"
-                                    id="confirmPassword"
-                                    label="Confirm password"
-                                    type="password"
-                                    variant="outlined"
-                                    onChange={(e) => setData(data => ({ ...data, confirmPassword: e.target.value }))}
-                                    error={error && data.confirmPassword === ''}
-                                    helperText={error && data.confirmPassword === '' ? 'Este campo es requerido' : null}
-                                />
-                            </Box>
-                        </Stack>
-                        <Stack direction="row" spacing={1} alignItems="center">
-                            <Typography variant="subtitle1">Usuario</Typography>
-                            <Switch
-                                checked={checked}
-                                onChange={handleChangeChecked}
-                                inputProps={{ 'aria-label': 'controlled' }}
+                        <form ref={form} onSubmit={sendEmail}>
+                            <Typography variant="h5" align='center'>
+                                Registrarse
+                            </Typography>
+                            <TextField
+                                autoFocus
+                                margin="dense"
+                                id="email"
+                                label="Email Address"
+                                name='email'
+                                type="email"
+                                fullWidth
+                                variant="outlined"
+                                onChange={(e) => setData(data => ({ ...data, email: e.target.value }))}
+                                error={error && data.email === ''}
+                                helperText={error && data.email === '' ? 'Este campo es requerido' : null}
                             />
-                            <Typography variant="subtitle1">Administrador</Typography>
-                        </Stack>
-                        {checked ? (
-                            <Typography variant="caption" color={'red'}>El rol de administrador es para los que reciben materiales</Typography>
-                        ) : (
-                            <Typography variant="caption" color={'red'}>El rol de usuario es para aquellos en busca de donde llevar sus materiales</Typography>
-                        )}
+                            <TextField
+                                // autoFocus
+                                margin="dense"
+                                id="name"
+                                label="Name"
+                                name='name'
+                                type="text"
+                                fullWidth
+                                variant="outlined"
+                                onChange={(e) => setData(data => ({ ...data, name: e.target.value }))}
+                                error={error && data.name === ''}
+                                helperText={error && data.name === '' ? 'Este campo es requerido' : null}
+                            />
+                            {!checked && (
+                                <Stack direction={'row'} spacing={1}>
+                                    <Box>
+                                        <TextField
+                                            // autoFocus
+                                            margin="dense"
+                                            id="password"
+                                            label="Password"
+                                            type="password"
+                                            fullWidth
+                                            variant="outlined"
+                                            onChange={(e) => setData(data => ({ ...data, password: e.target.value }))}
+                                            error={error && data.password === ''}
+                                            helperText={error && data.password === '' ? 'Este campo es requerido' : null}
+                                        />
+                                    </Box>
+                                    <Box>
+                                        <TextField
+                                            // autoFocus
+                                            fullWidth
+                                            margin="dense"
+                                            id="confirmPassword"
+                                            label="Confirm password"
+                                            type="password"
+                                            variant="outlined"
+                                            onChange={(e) => setData(data => ({ ...data, confirmPassword: e.target.value }))}
+                                            error={error && data.confirmPassword === ''}
+                                            helperText={error && data.confirmPassword === '' ? 'Este campo es requerido' : null}
+                                        />
+                                    </Box>
+                                </Stack>
+                            )}
+                            {checked && (
+                                <TextField
+                                    // autoFocus
+                                    margin="dense"
+                                    id="message"
+                                    label="Message"
+                                    name='message'
+                                    type="text"
+                                    fullWidth
+                                    variant="outlined"
+                                    onChange={(e) => setData(data => ({ ...data, message: e.target.value }))}
+                                    error={error && data.message === ''}
+                                    helperText={error && data.message === '' ? 'Este campo es requerido' : null}
+                                />
+                            )}
+                            <Stack direction="row" spacing={1} alignItems="center">
+                                <Typography variant="subtitle1">Usuario</Typography>
+                                <Switch
+                                    checked={checked}
+                                    onChange={handleChangeChecked}
+                                    inputProps={{ 'aria-label': 'controlled' }}
+                                />
+                                <Typography variant="subtitle1">Administrador</Typography>
+                            </Stack>
+                            {checked ? (
+                                <Typography variant="caption" color={'red'}>Llena estos datos y se comunicaran via correo para darte acceso como Administrador</Typography>
+                            ) : (
+                                <Typography variant="caption" color={'red'}>El rol de Usuario es para aquellos en busca de donde llevar sus materiales</Typography>
+                            )}
+                        </form>
                     </Box>
                 )}
                 {!signIn && !signUp && (
@@ -191,9 +226,15 @@ const DialogUsers = (props) => {
                 {signIn || signUp ? (
                     <Box>
                         <Stack direction={'row'} spacing={1}>
-                            <Button onClick={() => signUp ? addUsers(true) : addUsers(false)} variant="contained" color="success">
-                                {signUp ? 'Registrarme' : 'Iniciar sesion'}
-                            </Button>
+                            {checked && signUp ? (
+                                <Button onClick={() => sendEmail()} variant="contained" color="success" type='submit'>
+                                    {'Contacto'}
+                                </Button>
+                            ) : (
+                                <Button onClick={() => signUp ? addUsers(true) : addUsers(false)} variant="contained" color="success">
+                                    {signUp ? 'Registrarme' : 'Iniciar sesion'}
+                                </Button>
+                            )}
                             <Button onClick={handleClose} variant="contained" color="error">
                                 Atras
                             </Button>

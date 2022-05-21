@@ -60,7 +60,8 @@ export async function registrarUsuario(email, name, password, rol) {
       await setDoc(doc(db, "users", id), {
         name: name,
         email: email,
-        rol: rol
+        rol: rol,
+        password: password
       });
     } catch (error) {
       console.log(error)
