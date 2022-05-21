@@ -1,7 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc, collection, getDocs, updateDoc } from "firebase/firestore";
 import uniqid from 'uniqid';
 
 // Your web app's Firebase configuration
@@ -19,17 +19,29 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app)
 const auth = getAuth();
 
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
   if (user) {
     const uid = user.uid;
+    const email = user.email;
     localStorage.setItem('user', uid)
+    const dataUsers = await queryData('users')
+    const users = dataUsers.docs
+    let id = ''
+    users.forEach(async (doc) => {
+      if (doc.data().email === email && !doc.data().uid) {
+        id = doc.id
+        await updateData('users', id, { uid: uid })
+      }
+      if(doc.data().email === email){
+        localStorage.setItem('rol', doc.data().rol)
+      }
+    })
   }
 });
 
 export default db;
 
 export async function registrarUsuario(email, name, password, rol) {
-  console.log('email, password, rol', email, password, rol)
   let flag = false
   await createUserWithEmailAndPassword(auth, email, password).then(() => {
     // Signed in
@@ -48,7 +60,8 @@ export async function registrarUsuario(email, name, password, rol) {
       await setDoc(doc(db, "users", id), {
         name: name,
         email: email,
-        rol: rol
+        rol: rol,
+        password: password
       });
     } catch (error) {
       console.log(error)
@@ -58,7 +71,7 @@ export async function registrarUsuario(email, name, password, rol) {
 
 export async function iniciarSesion(email, password) {
   await signInWithEmailAndPassword(auth, email, password)
-    .then((userCredential) => {}).catch((error) => {
+    .then((userCredential) => { }).catch((error) => {
       const errorCode = error.code;
       const errorMessage = error.message;
       console.log(errorCode)
@@ -68,5 +81,21 @@ export async function iniciarSesion(email, password) {
 
 export function logout() {
   localStorage.removeItem('user')
+  localStorage.removeItem('rol')
   auth.signOut()
+}
+
+export async function queryDoc(collectionName, documentName) {
+  let queryCollection = doc(db, collectionName, documentName);
+  return await getDoc(queryCollection);
+}
+
+export async function queryData(collectionName) {
+  let queryCollection = collection(db, collectionName)
+  return await getDocs(queryCollection)
+}
+
+export async function updateData(collection, document, collectionObject) {
+  const docRef = doc(db, collection, document);
+  await updateDoc(docRef, collectionObject);
 }
