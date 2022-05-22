@@ -50,7 +50,7 @@ const DialogForum = (props) => {
                     <Box>
                         Forum
                     </Box>
-                    {rol && rol === 'user' && (
+                    {rol && rol === 'usuario' && (
                         <div>
                             <Button aria-describedby={id} variant="contained" onClick={handleClick} endIcon={<ForumIcon />}>
                                 Publicar
