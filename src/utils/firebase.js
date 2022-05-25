@@ -23,19 +23,23 @@ onAuthStateChanged(auth, async (user) => {
   if (user) {
     const uid = user.uid;
     const email = user.email;
-    localStorage.setItem('user', uid)
+    if(!localStorage.getItem('user')){
+      localStorage.setItem('user', uid)
+    }
     const dataUsers = await queryData('users')
     const users = dataUsers.docs
-    let id = ''
-    users.forEach(async (doc) => {
-      if (doc.data().email === email && !doc.data().uid) {
-        id = doc.id
-        await updateData('users', id, { uid: uid })
-      }
-      if(doc.data().email === email){
-        localStorage.setItem('rol', doc.data().rol)
-      }
-    })
+    if (users) {
+      let id = ''
+      users.forEach(async (doc) => {
+        if (doc.data().email.toLowerCase() === email && !doc.data().uid) {
+          id = doc.id
+          await updateData('users', id, { uid: uid })
+        }
+        if (doc.data().email.toLowerCase() === email && !localStorage.getItem('rol')) {
+          localStorage.setItem('rol', doc.data().rol)
+        }
+      })
+    }
   }
 });
 
