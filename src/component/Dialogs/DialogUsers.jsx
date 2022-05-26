@@ -183,6 +183,7 @@ const DialogUsers = (props) => {
                         )
                     )
                     setLocation(true)
+                    setValues({})
                 })
                 .catch((error) => {
                     console.log(error);
