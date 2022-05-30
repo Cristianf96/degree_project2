@@ -8,9 +8,10 @@ import DoneIcon from '@mui/icons-material/Done';
 import MyLocationIcon from '@mui/icons-material/MyLocation';
 import { styled } from '@mui/material/styles';
 
-import { registrarUsuario, iniciarSesion } from '../../utils/firebase';
+import { registrarUsuario, iniciarSesion, addDocs } from '../../utils/firebase';
 
 import emailjs from '@emailjs/browser';
+import moment from 'moment';
 
 
 const DialogUsers = (props) => {
@@ -31,15 +32,15 @@ const DialogUsers = (props) => {
     const [createUsers, setCreateUsers] = useState(false)
     const [recyclingPoint, setRecyclingPoint] = useState(false)
     const [data, setData] = useState({ email: '', name: '', password: '', confirmPassword: '', message: '' })
-    const [dataRecyclingPoint, setDataRecyclingPoint] = useState({ name: '', recibe: '', coords: { lat: 0, lng: 0 }, dias: [], horario: '' })
+    const [dataRecyclingPoint, setDataRecyclingPoint] = useState({ name: '', recibe: '', coords: { lat: 0, lng: 0 }, dias: [], dateInicial: '', dateFinal: '' })
     const [checked, setChecked] = React.useState(true);
     const [chipData, setChipData] = React.useState([
         { key: 0, label: 'Lunes', state: false },
         { key: 1, label: 'Martes', state: false },
         { key: 2, label: 'Miercoles', state: false },
-        { key: 3, label: 'Jueves', state: true },
+        { key: 3, label: 'Jueves', state: false },
         { key: 4, label: 'Viernes', state: false },
-        { key: 5, label: 'Sabado', state: true },
+        { key: 5, label: 'Sabado', state: false },
         { key: 6, label: 'Domingo', state: false },
     ]);
     const [map, setMap] = useState(null)
@@ -47,6 +48,7 @@ const DialogUsers = (props) => {
     const [center, setCenter] = useState(null)
     const [local, setLocal] = useState(false);
     const [location, setLocation] = useState(false);
+    // const [reload, setReload] = useState(false);
 
     useEffect(() => {
         const getInformation = () => {
@@ -56,6 +58,9 @@ const DialogUsers = (props) => {
                 maximumAge: 0
             };
             navigator.geolocation.getCurrentPosition(success, errorr, options)
+            // if (reload) {
+            //     setReload(false)
+            // }
         }
         getInformation()
     }, [])
@@ -88,7 +93,7 @@ const DialogUsers = (props) => {
         setCreateUsers(false)
         setRecyclingPoint(false)
         setData({ email: '', name: '', password: '', confirmPassword: '', message: '' })
-        setDataRecyclingPoint({ name: '', recibe: '', coords: {}, dias: [], horario: '' })
+        setDataRecyclingPoint({ name: '', recibe: '', coords: { lat: 0, lng: 0 }, dias: [], dateInicial: '', dateFinal: '' })
     }
 
     const addUsers = async (add) => {
@@ -121,8 +126,14 @@ const DialogUsers = (props) => {
         }
     }
 
-    const handleDelete = (chipToDelete) => () => {
-        setChipData((chips) => chips.filter((chip) => chip.key !== chipToDelete.key));
+    const handleChangeDays = (chipToDelete) => () => {
+        chipData.forEach(item => {
+            if (item.key === chipToDelete.key) {
+                item.state = !item.state
+            }
+        })
+        setChipData(chipData)
+        setDataRecyclingPoint(dataRecyclingPoint => ({ ...dataRecyclingPoint, dias: chipData }))
     };
 
     const createUsersAndPoint = async () => {
@@ -151,8 +162,35 @@ const DialogUsers = (props) => {
         }
 
         if (recyclingPoint) {
-            console.log('dataRecyclingPoint', dataRecyclingPoint)
-            setDataRecyclingPoint({ name: '', recibe: '', coords: { lat: 0, lng: 0 }, dias: [], horario: '' })
+            if (dataRecyclingPoint.name !== '' && dataRecyclingPoint.recibe !== '' && dataRecyclingPoint.dateInicial !== '' && dataRecyclingPoint.dateFinal !== '') {
+                const timeI = moment(dataRecyclingPoint.dateInicial).format('HH:mm')
+                const timeF = moment(dataRecyclingPoint.dateFinal).format('HH:mm')
+                await addDocs('locations', {
+                    Name: dataRecyclingPoint.name,
+                    Recibe: dataRecyclingPoint.recibe,
+                    Coords: dataRecyclingPoint.coords,
+                    Dias: dataRecyclingPoint.dias,
+                    dateInicial: timeI,
+                    dateFinal: timeF,
+                })
+                setError(false)
+                props.handleClickAlert('success', 'Se creo con exito el punto de recoleccion')
+                props.onClose()
+            } else {
+                setError(true)
+                props.handleClickAlert('error', 'Debes llenar los campos')
+                props.onClose()
+            }
+            setDataRecyclingPoint({ name: '', recibe: '', coords: { lat: 0, lng: 0 }, dias: [], dateInicial: '', dateFinal: '' })
+            setChipData([
+                { key: 0, label: 'Lunes', state: false },
+                { key: 1, label: 'Martes', state: false },
+                { key: 2, label: 'Miercoles', state: false },
+                { key: 3, label: 'Jueves', state: false },
+                { key: 4, label: 'Viernes', state: false },
+                { key: 5, label: 'Sabado', state: false },
+                { key: 6, label: 'Domingo', state: false },
+            ])
         }
     }
 
@@ -195,11 +233,9 @@ const DialogUsers = (props) => {
 
     return (
         <Dialog
-            // onClose={props.onClose}
             aria-labelledby="customized-dialog-title"
             open={props.open}
             maxWidth={'md'}
-        // fullWidth
         >
             <DialogTitle>
                 Users
@@ -535,85 +571,91 @@ const DialogUsers = (props) => {
                                         )}
                                     </GoogleMap>
                                 </Box>
-                                <Box textAlign={'center'} margin={1}>
-                                    <Typography variant="subtitle1">
-                                        Dias
-                                    </Typography>
-                                    <Paper
-                                        sx={{
-                                            display: 'flex',
-                                            justifyContent: 'center',
-                                            flexWrap: 'wrap',
-                                            listStyle: 'none',
-                                            p: 0.5,
-                                            m: 0,
-                                        }}
-                                        component="ul"
-                                    >
-                                        {chipData.map((data) => {
+                                <Stack direction={'row'}>
+                                    <Box textAlign={'center'} margin={1} width={'90%'}>
+                                        <Typography variant="subtitle1">
+                                            Dias
+                                        </Typography>
+                                        <Paper
+                                            sx={{
+                                                display: 'flex',
+                                                justifyContent: 'center',
+                                                flexWrap: 'wrap',
+                                                listStyle: 'none',
+                                                p: 0.5,
+                                                m: 0,
+                                            }}
+                                            component="ul"
+                                        >
+                                            {chipData && chipData.map((data) => {
 
-                                            return (
-                                                <>
-                                                    {data.state ? (
-                                                        <ListItem key={data.key}>
-                                                            <Chip
-                                                                // icon={icon}
-                                                                label={data.label}
-                                                                onDelete={handleDelete(data)}
-                                                                color={'success'}
-                                                            />
-                                                        </ListItem>
-                                                    ) : (
-                                                        <ListItem key={data.key}>
-                                                            <Chip
-                                                                // icon={<DoneIcon />}
-                                                                label={data.label}
-                                                                onDelete={() => console.log('debe entrar al array', data.key, data.label)}
-                                                                deleteIcon={<DoneIcon />}
-                                                                color={'error'}
-                                                            />
-                                                        </ListItem>
-                                                    )}
-                                                </>
-                                            );
-                                        })}
-                                    </Paper>
-                                </Box>
-                                <Box textAlign={'center'} margin={1}>
-                                    <Typography variant="subtitle1">
-                                        Horario
-                                    </Typography>
-                                    <Stack direction={'row'} spacing={1} justifyContent={'center'}>
-                                        <Box>
-                                            <TextField
-                                                label="Inicio"
-                                                type="time"
-                                                defaultValue="07:30"
-                                                InputLabelProps={{
-                                                    shrink: true,
-                                                }}
-                                                inputProps={{
-                                                    step: 300, // 5 min
-                                                }}
-                                                sx={{ width: 150 }}
-                                            />
-                                        </Box>
-                                        <Box>
-                                            <TextField
-                                                label="Fin"
-                                                type="time"
-                                                defaultValue="10:30"
-                                                InputLabelProps={{
-                                                    shrink: true,
-                                                }}
-                                                inputProps={{
-                                                    step: 300, // 5 min
-                                                }}
-                                                sx={{ width: 150 }}
-                                            />
-                                        </Box>
-                                    </Stack>
-                                </Box>
+                                                return (
+                                                    <>
+                                                        {data.state ? (
+                                                            <ListItem key={data.key}>
+                                                                <Chip
+                                                                    label={data.label}
+                                                                    onDelete={handleChangeDays(data)}
+                                                                    color={'success'}
+                                                                />
+                                                            </ListItem>
+                                                        ) : (
+                                                            <ListItem key={data.key}>
+                                                                <Chip
+                                                                    label={data.label}
+                                                                    onDelete={handleChangeDays(data)}
+                                                                    deleteIcon={<DoneIcon />}
+                                                                    color={'error'}
+                                                                />
+                                                            </ListItem>
+                                                        )}
+                                                    </>
+                                                );
+                                            })}
+                                        </Paper>
+                                    </Box>
+                                    <Box textAlign={'center'} margin={1}>
+                                        <Typography variant="subtitle1">
+                                            Horario
+                                        </Typography>
+                                        <Stack spacing={3} justifyContent={'center'}>
+                                            <Box>
+                                                <TextField
+                                                    label="Abre"
+                                                    type="time"
+                                                    InputLabelProps={{
+                                                        shrink: true,
+                                                    }}
+                                                    defaultValue={''}
+                                                    onChange={(e) => setDataRecyclingPoint(dataRecyclingPoint => ({ ...dataRecyclingPoint, dateInicial: moment(e.target.value, 'HH:mm') }))}
+                                                    inputProps={{
+                                                        step: 300, // 5 min
+                                                    }}
+                                                    sx={{ width: 120 }}
+                                                    error={error && dataRecyclingPoint.dateInicial === ''}
+                                                    helperText={error && dataRecyclingPoint.dateInicial === '' ? 'Este campo es requerido' : null}
+                                                />
+                                            </Box>
+                                            <Box>
+                                                <TextField
+                                                    label="Cierra"
+                                                    type="time"
+                                                    InputLabelProps={{
+                                                        shrink: true,
+                                                    }}
+                                                    defaultValue={''}
+                                                    onChange={(e) => setDataRecyclingPoint(dataRecyclingPoint => ({ ...dataRecyclingPoint, dateFinal: moment(e.target.value, 'HH:mm') }))}
+                                                    inputProps={{
+                                                        step: 300, // 5 min
+                                                    }}
+                                                    sx={{ width: 120 }}
+                                                    error={error && dataRecyclingPoint.dateFinal === ''}
+                                                    helperText={error && dataRecyclingPoint.dateFinal === '' ? 'Este campo es requerido' : null}
+                                                />
+                                            </Box>
+                                        </Stack>
+                                    </Box>
+                                </Stack>
                             </Box>
                         )}
                     </>

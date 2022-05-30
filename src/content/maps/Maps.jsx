@@ -18,7 +18,7 @@ import DialogTips from '../../component/Dialogs/DialogTips';
 import DialogUsers from '../../component/Dialogs/DialogUsers';
 import DialogForum from '../../component/Dialogs/DialogForum';
 
-import { logout } from '../../utils/firebase';
+import { logout, queryData } from '../../utils/firebase';
 
 let actions = [
   { icon: <TipsAndUpdatesIcon />, name: 'Tips' },
@@ -35,7 +35,7 @@ function Maps() {
   const session = localStorage.getItem('user') ?? ""
   const rol = localStorage.getItem('rol') ?? ""
   const [center, setCenter] = useState(null)
-  const Markers = [{ lat: 44, lng: -80 }]
+  const [markers, setMarkers] = useState([]);
   const [position, setPosition] = useState(null)
   const [map, setMap] = useState(null)
   const [local, setLocal] = useState(false);
@@ -61,11 +61,6 @@ function Maps() {
 
   function success(pos) {
     var crd = pos.coords;
-
-    // console.log('Your current position is:');
-    // console.log('Latitude : ' + crd.latitude);
-    // console.log('Longitude: ' + crd.longitude);
-    // console.log('More or less ' + crd.accuracy + ' meters.');
     setCenter({
       lat: crd.latitude,
       lng: crd.longitude
@@ -109,9 +104,15 @@ function Maps() {
             { icon: <LogoutIcon />, name: 'Logout' }
           ]
         }
-        // const dataUsers = await queryData('users')
-        // const users = dataUsers.docs
-        // const user = users.find(doc => doc?.data().uid === session)?.data()
+        const dataUsers = await queryData('locations')
+        const positions = dataUsers.docs
+        if (positions) {
+          let Markers = []
+          positions.forEach((doc) => {
+            Markers.push(doc.data())
+          })
+          setMarkers(Markers)
+        }
         // console.log(user)
       }
       if (reload) {
@@ -254,9 +255,10 @@ function Maps() {
             {location && (
               <Marker position={center} icon={'/pin.png'} onClick={() => console.log('esta es su ubicacion')} />
             )}
-            {Markers.map((marker, key) => {
+            {console.log('Markers', markers)}
+            {markers.map((marker, key) => {
               return (
-                <Marker key={key} position={marker} onClick={() => console.log(marker.lat, marker.lng)} />
+                <Marker key={key} position={marker.Coords} onClick={() => console.log(marker)} />
               )
             })}
           </GoogleMap>
@@ -282,7 +284,7 @@ function Maps() {
           </Card>
           <DialogForum open={openDialogForum} onClose={handleCloseDialog} setReload={setReload} />
         </Box>
-        <Snackbar open={openAlert} autoHideDuration={2000} onClose={handleCloseAlert}>
+        <Snackbar open={openAlert} autoHideDuration={2000} onClose={handleCloseAlert} sx={{ zIndex: 10 }}>
           <Alert onClose={handleCloseAlert} severity={severity} sx={{ width: '100%' }}>
             {message}
           </Alert>
