@@ -1,7 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
-import { doc, setDoc, getDoc, collection, getDocs, updateDoc,addDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc, collection, getDocs, updateDoc, addDoc } from "firebase/firestore";
 import uniqid from 'uniqid';
 
 // Your web app's Firebase configuration
@@ -23,7 +23,7 @@ onAuthStateChanged(auth, async (user) => {
   if (user) {
     const uid = user.uid;
     const email = user.email;
-    if(!localStorage.getItem('user')){
+    if (!localStorage.getItem('user')) {
       localStorage.setItem('user', uid)
     }
     const dataUsers = await queryData('users')
@@ -45,7 +45,7 @@ onAuthStateChanged(auth, async (user) => {
 
 export default db;
 
-export async function registrarUsuario(email, name, password, rol) {
+export async function registrarUsuario(email, name, password, rol, admin, recyclePoint) {
   let flag = false
   await createUserWithEmailAndPassword(auth, email, password).then(() => {
     // Signed in
@@ -61,12 +61,22 @@ export async function registrarUsuario(email, name, password, rol) {
   if (flag) {
     try {
       const id = uniqid()
-      await setDoc(doc(db, "users", id), {
-        name: name,
-        email: email,
-        rol: rol,
-        password: password
-      });
+      if (admin) {
+        await setDoc(doc(db, "users", id), {
+          name: name,
+          email: email,
+          rol: rol,
+          password: password,
+          recyclePoint: recyclePoint
+        });
+      } else {
+        await setDoc(doc(db, "users", id), {
+          name: name,
+          email: email,
+          rol: rol,
+          password: password
+        });
+      }
     } catch (error) {
       console.log(error)
     }

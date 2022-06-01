@@ -3,12 +3,12 @@ import { GoogleMap, useLoadScript, Marker } from '@react-google-maps/api'
 import GooglePlacesAutocomplete from 'react-google-places-autocomplete';
 import axios from 'axios';
 
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Stack, Box, Typography, TextField, Switch, Chip, Paper, IconButton, Card } from '@mui/material';
+import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Stack, Box, Typography, TextField, Switch, Chip, Paper, IconButton, Card, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import DoneIcon from '@mui/icons-material/Done';
 import MyLocationIcon from '@mui/icons-material/MyLocation';
 import { styled } from '@mui/material/styles';
 
-import { registrarUsuario, iniciarSesion, addDocs } from '../../utils/firebase';
+import { registrarUsuario, iniciarSesion, addDocs, queryData } from '../../utils/firebase';
 
 import emailjs from '@emailjs/browser';
 import moment from 'moment';
@@ -46,21 +46,28 @@ const DialogUsers = (props) => {
     const [map, setMap] = useState(null)
     const [values, setValues] = useState({});
     const [center, setCenter] = useState(null)
+    const [recyclePoints, setRecyclePoints] = useState(false);
     const [local, setLocal] = useState(false);
     const [location, setLocation] = useState(false);
-    // const [reload, setReload] = useState(false);
+    const [recyclePoint, setRecyclePoint] = React.useState('');
 
     useEffect(() => {
-        const getInformation = () => {
+        const getInformation = async () => {
             const options = {
                 enableHighAccuracy: true,
                 timeout: 5000,
                 maximumAge: 0
             };
             navigator.geolocation.getCurrentPosition(success, errorr, options)
-            // if (reload) {
-            //     setReload(false)
-            // }
+            const dataPoints = await queryData('locations')
+            const dataP = dataPoints.docs
+            if (dataP) {
+                const objPoint = []
+                dataP.forEach((doc) => {
+                    objPoint.push({ data: doc.data(), id: doc.id })
+                })
+                setRecyclePoints(objPoint)
+            }
         }
         getInformation()
     }, [])
@@ -94,6 +101,7 @@ const DialogUsers = (props) => {
         setRecyclingPoint(false)
         setData({ email: '', name: '', password: '', confirmPassword: '', message: '' })
         setDataRecyclingPoint({ name: '', recibe: '', coords: { lat: 0, lng: 0 }, dias: [], dateInicial: '', dateFinal: '' })
+        setRecyclePoint('')
     }
 
     const addUsers = async (add) => {
@@ -122,7 +130,7 @@ const DialogUsers = (props) => {
             props.onClose()
         } else {
             setError(true)
-            setData({ email: '', name: '', password: '', confirmPassword: '' })
+            setData({ email: '', name: '', password: '', confirmPassword: '', message: '' })
         }
     }
 
@@ -141,9 +149,16 @@ const DialogUsers = (props) => {
             if (data.email !== '' && data.name !== '' && data.password !== '' && data.confirmPassword !== '') {
                 if (data.password === data.confirmPassword && data.password.length >= 6) {
                     setError(false)
-                    console.log('checked :>> ', checked);
                     try {
-                        await registrarUsuario(data.email, data.name, data.password, checked ? 'admin' : 'usuario')
+                        if (checked) {
+                            if (recyclePoint !== '') {
+                                await registrarUsuario(data.email, data.name, data.password, 'admin', true, recyclePoint)
+                            } else {
+                                return props.handleClickAlert('error', 'Debes ingresar el punto de administracion')
+                            }
+                        } else {
+                            await registrarUsuario(data.email, data.name, data.password, 'usuario', false, '')
+                        }
                         handleClose()
                         props.handleClickAlert('success', 'Se creo la cuenta con satisfaccion')
                         props.onClose()
@@ -157,7 +172,8 @@ const DialogUsers = (props) => {
                 }
             } else {
                 setError(true)
-                setData({ email: '', name: '', password: '', confirmPassword: '' })
+                setData({ email: '', name: '', password: '', confirmPassword: '', message: '' })
+                setRecyclePoint('')
             }
         }
 
@@ -228,6 +244,11 @@ const DialogUsers = (props) => {
                 })
         }
     }
+
+
+    const handleChange = (event) => {
+        setRecyclePoint(event.target.value);
+    };
 
     if (!isLoaded) return <div>Loading...</div>
 
@@ -435,7 +456,7 @@ const DialogUsers = (props) => {
                                             helperText={error && data.name === '' ? 'Este campo es requerido' : null}
                                         />
                                         <Stack direction={'row'} spacing={1}>
-                                            <Box>
+                                            <Box sx={{ width: '50%' }}>
                                                 <TextField
                                                     // autoFocus
                                                     margin="dense"
@@ -449,7 +470,7 @@ const DialogUsers = (props) => {
                                                     helperText={error && data.password === '' ? 'Este campo es requerido' : null}
                                                 />
                                             </Box>
-                                            <Box>
+                                            <Box sx={{ width: '50%' }}>
                                                 <TextField
                                                     // autoFocus
                                                     fullWidth
@@ -464,6 +485,28 @@ const DialogUsers = (props) => {
                                                 />
                                             </Box>
                                         </Stack>
+                                        {rol === 'staff' && checked && (
+                                            <Box marginTop={1}>
+                                                <FormControl fullWidth>
+                                                    <InputLabel id="demo-simple-select-label">Puntos de reciclaje</InputLabel>
+                                                    <Select
+                                                        labelId="demo-simple-select-label"
+                                                        id="demo-simple-select"
+                                                        value={recyclePoint}
+                                                        label="Puntos de reciclaje"
+                                                        onChange={handleChange}
+                                                        variant="outlined"
+                                                        margin="dense"
+                                                    >
+                                                        {recyclePoints && recyclePoints.map((item) => {
+                                                            return (
+                                                                <MenuItem value={item.id} key={item.id}>{item.data.Name}</MenuItem>
+                                                            )
+                                                        })}
+                                                    </Select>
+                                                </FormControl>
+                                            </Box>
+                                        )}
                                         <Stack direction="row" spacing={1} alignItems="center">
                                             <Typography variant="subtitle1">Usuario</Typography>
                                             <Switch
@@ -693,7 +736,7 @@ const DialogUsers = (props) => {
                             <Box>
                                 <Stack direction={'row'} spacing={1}>
                                     <Button onClick={() => createUsersAndPoint()} variant="contained" color="success">
-                                        {'Crear'}
+                                        {'Crear1'}
                                     </Button>
                                     <Button onClick={handleClose} variant="contained" color="error">
                                         Atras

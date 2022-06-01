@@ -113,7 +113,6 @@ function Maps() {
           })
           setMarkers(Markers)
         }
-        // console.log(user)
       }
       if (reload) {
         setReload(false)
@@ -154,7 +153,6 @@ function Maps() {
       case 'Create':
         setOpenDialogUsers(true)
         break
-
       default:
         break;
     }
@@ -255,10 +253,9 @@ function Maps() {
             {location && (
               <Marker position={center} icon={'/pin.png'} onClick={() => console.log('esta es su ubicacion')} />
             )}
-            {console.log('Markers', markers)}
             {markers.map((marker, key) => {
               return (
-                <Marker key={key} position={marker.Coords} onClick={() => console.log(marker)} />
+                <Marker key={key} position={marker.Coords} icon={'/centro-de-reciclaje-3d-30.png'} onClick={() => console.log(marker)} />
               )
             })}
           </GoogleMap>
