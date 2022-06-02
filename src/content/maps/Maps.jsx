@@ -104,15 +104,16 @@ function Maps() {
             { icon: <LogoutIcon />, name: 'Logout' }
           ]
         }
-        const dataUsers = await queryData('locations')
-        const positions = dataUsers.docs
-        if (positions) {
-          let Markers = []
-          positions.forEach((doc) => {
-            Markers.push(doc.data())
-          })
-          setMarkers(Markers)
-        }
+      }
+      const dataUsers = await queryData('locations')
+      const positions = dataUsers.docs
+      if (positions) {
+        let Markers = []
+        positions.forEach((doc) => {
+          Markers.push(doc.data())
+        })
+        console.log('Markers', Markers)
+        setMarkers(Markers)
       }
       if (reload) {
         setReload(false)

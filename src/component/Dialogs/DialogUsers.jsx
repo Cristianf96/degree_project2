@@ -736,7 +736,7 @@ const DialogUsers = (props) => {
                             <Box>
                                 <Stack direction={'row'} spacing={1}>
                                     <Button onClick={() => createUsersAndPoint()} variant="contained" color="success">
-                                        {'Crear1'}
+                                        {'Crear'}
                                     </Button>
                                     <Button onClick={handleClose} variant="contained" color="error">
                                         Atras
