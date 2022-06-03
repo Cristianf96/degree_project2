@@ -112,7 +112,6 @@ function Maps() {
         positions.forEach((doc) => {
           Markers.push(doc.data())
         })
-        console.log('Markers', Markers)
         setMarkers(Markers)
       }
       if (reload) {
