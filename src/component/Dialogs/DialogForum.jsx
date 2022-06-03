@@ -2,31 +2,62 @@ import React, { useEffect, useState } from 'react'
 
 import { TextField, Dialog, DialogTitle, DialogContent, DialogActions, Button, Stack, Popover, Typography, Box, Card, CardContent, CardActions } from '@mui/material';
 import ForumIcon from '@mui/icons-material/Forum';
+import { addDocs, queryData } from '../../utils/firebase';
 
 const DialogForum = (props) => {
 
     // const [disabled, setDisabled] = useState(true)
     const [value, setValue] = useState({ material: '', descripcion: '', movil: '', email: '' })
     const [anchorEl, setAnchorEl] = React.useState(null);
+    const [error, setError] = React.useState(false);
+    // const [reload, setReload] = React.useState(false);
+    const [dataUSer, setDataUSer] = useState({})
+    const [dataForum, setDataForum] = useState([])
     const rol = localStorage.getItem('rol') ?? ""
+    const uid = localStorage.getItem('user') ?? ""
 
     useEffect(() => {
+        const getInformation = async () => {
+            const dataUsers = await queryData('users')
+            const data = dataUsers.docs
+            if (data) {
+                const objUSer = []
+                data.forEach((doc) => {
+                    if (doc.data().uid === uid) {
+                        objUSer.push(doc.data())
+                    }
+                })
+                setDataUSer(objUSer[0])
+            }
+            const dataForum = await queryData('forum')
+            const dataF = dataForum.docs
+            if (dataF) {
+                const objForum = []
+                dataF.forEach((doc) => {
+                    objForum.push({ data: doc.data(), id: doc.id })
+                })
+                setDataForum(objForum)
+            }
+        }
+        getInformation()
+    }, [uid])
 
-    }, [])
-
-    const dataFake = [
-        { id: 1, name: 'Juanito', material: 'Pilas', descripcion: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras pulvinar erat nec neque imperdiet convallis. Suspendisse metus massa, faucibus sit amet vulputate vehicula, pretium at est. Fusce ut sapien suscipit.', movil: '3112974183', email: 'test@gmail.com' },
-        { id: 2, name: 'Andres', material: 'Botellas', descripcion: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras pulvinar erat nec neque imperdiet convallis. Suspendisse metus massa, faucibus sit amet vulputate vehicula, pretium at est. Fusce ut sapien suscipit.', movil: '3112974183', email: 'test@gmail.com' },
-        { id: 3, name: 'Cristian', material: 'Agujas', descripcion: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras pulvinar erat nec neque imperdiet convallis. Suspendisse metus massa, faucibus sit amet vulputate vehicula, pretium at est. Fusce ut sapien suscipit.', movil: '3112974183', email: 'test@gmail.com' },
-        { id: 4, name: 'Sara', material: 'Medicamentos', descripcion: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras pulvinar erat nec neque imperdiet convallis. Suspendisse metus massa, faucibus sit amet vulputate vehicula, pretium at est. Fusce ut sapien suscipit.', movil: '3112974183', email: 'test@gmail.com' },
-        { id: 5, name: 'Angie', material: 'Cobre', descripcion: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras pulvinar erat nec neque imperdiet convallis. Suspendisse metus massa, faucibus sit amet vulputate vehicula, pretium at est. Fusce ut sapien suscipit.', movil: '3112974183', email: 'test@gmail.com' },
-        { id: 6, name: 'Giovanni', material: 'Teclados', descripcion: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras pulvinar erat nec neque imperdiet convallis. Suspendisse metus massa, faucibus sit amet vulputate vehicula, pretium at est. Fusce ut sapien suscipit.', movil: '3112974183', email: 'test@gmail.com' },
-        { id: 7, name: 'Zulima', material: 'Portatiles', descripcion: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras pulvinar erat nec neque imperdiet convallis. Suspendisse metus massa, faucibus sit amet vulputate vehicula, pretium at est. Fusce ut sapien suscipit.', movil: '3112974183', email: 'test@gmail.com' },
-        { id: 8, name: 'Ra', material: 'Agujas', descripcion: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras pulvinar erat nec neque imperdiet convallis. Suspendisse metus massa, faucibus sit amet vulputate vehicula, pretium at est. Fusce ut sapien suscipit.', movil: '3112974183', email: 'test@gmail.com' },
-    ]
-
-    const handlePost = () => {
+    const handlePost = async () => {
         if (value && value.material !== '' && value.descripcion !== '' && value.movil !== '' && value.email !== '') {
+            console.log('value', value)
+            console.log('dataUSer', dataUSer)
+            await addDocs('forum', {
+                name: dataUSer.name,
+                emailUser: dataUSer.email,
+                material: value.material,
+                descripcion: value.descripcion,
+                movil: value.movil,
+                emailForum: value.email,
+            })
+            setError(false)
+            setAnchorEl(null);
+        } else {
+            setError(true)
         }
     }
 
@@ -44,6 +75,8 @@ const DialogForum = (props) => {
         <Dialog
             aria-labelledby="customized-dialog-title"
             open={props.open}
+            maxWidth={'md'}
+            fullWidth
         >
             <DialogTitle>
                 <Stack direction={'row'} justifyContent={'space-between'}>
@@ -67,11 +100,34 @@ const DialogForum = (props) => {
                             >
                                 <Box sx={{ padding: 2 }}>
                                     <Stack spacing={1}>
-                                        <TextField fullWidth label="Material" variant="outlined" onChange={(e) => setValue(value => ({ ...value, material: e.target.value }))} />
-                                        <TextField fullWidth label="Descripcion" variant="outlined" onChange={(e) => setValue(value => ({ ...value, descripcion: e.target.value }))} />
+                                        <TextField
+                                            fullWidth
+                                            label="Material"
+                                            variant="outlined"
+                                            onChange={(e) => setValue(value => ({ ...value, material: e.target.value }))}
+                                            error={error && value.material === ''}
+                                            helperText={error && value.material === '' ? 'Este campo es requerido' : null} />
+                                        <TextField
+                                            fullWidth
+                                            label="Descripcion"
+                                            variant="outlined"
+                                            onChange={(e) => setValue(value => ({ ...value, descripcion: e.target.value }))} error={error && value.descripcion === ''}
+                                            helperText={error && value.descripcion === '' ? 'Este campo es requerido' : null} />
                                         <Stack direction={'row'} spacing={1}>
-                                            <TextField fullWidth label="Numero de contacto" variant="outlined" onChange={(e) => setValue(value => ({ ...value, movil: e.target.value }))} />
-                                            <TextField fullWidth label="Correo" variant="outlined" type={'email'} onChange={(e) => setValue(value => ({ ...value, email: e.target.value }))} />
+                                            <TextField
+                                                fullWidth
+                                                label="Numero de contacto"
+                                                variant="outlined"
+                                                type={'number'}
+                                                onChange={(e) => setValue(value => ({ ...value, movil: e.target.value }))} error={error && value.movil === ''}
+                                                helperText={error && value.movil === '' ? 'Este campo es requerido' : null} />
+                                            <TextField
+                                                fullWidth
+                                                label="Correo"
+                                                variant="outlined"
+                                                type={'email'}
+                                                onChange={(e) => setValue(value => ({ ...value, email: e.target.value }))} error={error && value.email === ''}
+                                                helperText={error && value.email === '' ? 'Este campo es requerido' : null} />
                                         </Stack>
                                         <Button variant="contained" color="success" onClick={handlePost}>
                                             Publicar
@@ -84,29 +140,26 @@ const DialogForum = (props) => {
                 </Stack>
             </DialogTitle>
             <DialogContent dividers>
-                {dataFake && dataFake.map((item) => {
+                {dataForum.length > 0 && dataForum.map((item) => {
                     return (
                         <Box sx={{ marginBottom: 1, marginTop: 1 }} key={item.id}>
                             <Card sx={{ minWidth: 275 }}>
                                 <CardContent>
                                     <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
-                                        {item.name}
+                                        {item.data.name}
                                     </Typography>
                                     <Typography variant="h5" component="div">
-                                        {item.material}
+                                        {item.data.material}
                                     </Typography>
                                     <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                                        {item.descripcion}
+                                        {item.data.descripcion}
                                     </Typography>
-                                    {/* <Typography variant="body2">
-                                        well meaning and kindly.
-                                        <br />
-                                        {'"a benevolent smile"'}
-                                    </Typography> */}
                                 </CardContent>
-                                <CardActions>
-                                    {/* <Button size="small">Learn More</Button> */}
-                                </CardActions>
+                                {rol === 'admin' && (
+                                    <CardActions>
+                                        <Button size="large">Contactar</Button>
+                                    </CardActions>
+                                )}
                             </Card>
                         </Box>
                     )

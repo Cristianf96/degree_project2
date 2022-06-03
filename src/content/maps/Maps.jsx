@@ -12,18 +12,15 @@ import ForumIcon from '@mui/icons-material/Forum';
 import LogoutIcon from '@mui/icons-material/Logout';
 import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 import MyLocationIcon from '@mui/icons-material/MyLocation';
-// import NavigationIcon from '@mui/icons-material/Navigation';
+import GroupAddIcon from '@mui/icons-material/GroupAdd';
 
-// import DialogSearch from '../../component/Dialogs/DialogSearch';
 import DialogTips from '../../component/Dialogs/DialogTips';
 import DialogUsers from '../../component/Dialogs/DialogUsers';
 import DialogForum from '../../component/Dialogs/DialogForum';
-// import icon from '%PUBLIC_URL%/LOGO-SOLO.ico'
 
-import { logout } from '../../utils/firebase';
+import { logout, queryData } from '../../utils/firebase';
 
 let actions = [
-  // { icon: <SearchIcon />, name: 'Search' },
   { icon: <TipsAndUpdatesIcon />, name: 'Tips' },
   { icon: <PersonIcon />, name: 'Users' },
   { icon: <ForumIcon />, name: 'Forum' },
@@ -36,12 +33,13 @@ const Alert = React.forwardRef(function Alert(props, ref) {
 function Maps() {
 
   const session = localStorage.getItem('user') ?? ""
-  // const center = useMemo(() => ({ lat: 6.24788328286821, lng: -75.560914441354 }), [])
+  const rol = localStorage.getItem('rol') ?? ""
   const [center, setCenter] = useState(null)
-  const Markers = [{ lat: 44, lng: -80 }]
+  const [markers, setMarkers] = useState([]);
   const [position, setPosition] = useState(null)
   const [map, setMap] = useState(null)
   const [local, setLocal] = useState(false);
+  const [location, setLocation] = useState(false);
   const [open, setOpen] = useState(false);
   const [reload, setReload] = useState(false);
   const [openDialogTips, setOpenDialogTips] = useState(false)
@@ -63,11 +61,6 @@ function Maps() {
 
   function success(pos) {
     var crd = pos.coords;
-
-    console.log('Your current position is:');
-    console.log('Latitude : ' + crd.latitude);
-    console.log('Longitude: ' + crd.longitude);
-    console.log('More or less ' + crd.accuracy + ' meters.');
     setCenter({
       lat: crd.latitude,
       lng: crd.longitude
@@ -77,6 +70,7 @@ function Maps() {
       lng: crd.longitude
     })
     setLocal(true)
+    setLocation(false)
   };
 
   function error(err) {
@@ -92,25 +86,40 @@ function Maps() {
       };
       navigator.geolocation.getCurrentPosition(success, error, options)
       const found = actions.find(element => element.name === 'Logout');
+      if (session && !found && rol) {
+        if (rol === 'staff') {
+          actions = [
+            { icon: <PersonIcon />, name: 'Profile' },
+            { icon: <TipsAndUpdatesIcon />, name: 'Tips' },
+            { icon: <ForumIcon />, name: 'Forum' },
+            { icon: <GroupAddIcon />, name: 'Create' },
+            { icon: <LogoutIcon />, name: 'Logout' },
+          ]
+        }
+        if (rol === 'usuario') {
+          actions = [
+            { icon: <PersonIcon />, name: 'Profile' },
+            { icon: <TipsAndUpdatesIcon />, name: 'Tips' },
+            { icon: <ForumIcon />, name: 'Forum' },
+            { icon: <LogoutIcon />, name: 'Logout' }
+          ]
+        }
+      }
+      const dataUsers = await queryData('locations')
+      const positions = dataUsers.docs
+      if (positions) {
+        let Markers = []
+        positions.forEach((doc) => {
+          Markers.push(doc.data())
+        })
+        setMarkers(Markers)
+      }
       if (reload) {
         setReload(false)
       }
-      if (session && !found) {
-        actions = [
-          { icon: <PersonIcon />, name: 'Profile' },
-          // { icon: <SearchIcon />, name: 'Search' },
-          { icon: <TipsAndUpdatesIcon />, name: 'Tips' },
-          { icon: <ForumIcon />, name: 'Forum' },
-          { icon: <LogoutIcon />, name: 'Logout' }
-        ]
-        // const dataUsers = await queryData('users')
-        // const users = dataUsers.docs
-        // const user = users.find(doc => doc?.data().uid === session)?.data()
-        // console.log(user)
-      }
     }
     getInformation()
-  }, [reload, session])
+  }, [reload, rol, session])
 
   const handleCloseAlert = (event, reason) => {
     if (reason === 'clickaway') {
@@ -141,7 +150,9 @@ function Maps() {
       case 'Forum':
         setOpenDialogForum(true)
         break;
-
+      case 'Create':
+        setOpenDialogUsers(true)
+        break
       default:
         break;
     }
@@ -162,9 +173,8 @@ function Maps() {
       const url = `https://maps.googleapis.com/maps/api/geocode/json?place_id=${value.value.place_id}&key=${process.env.REACT_APP_GOOGLEMAPS_APIKEY}`
       axios.get(url)
         .then((response) => {
-          // successLocation(response.data['results'][0].geometry.location)
-          // console.log('response.data[results][0].geometry.location', response.data['results'][0].geometry['location'])
           setCenter(response.data['results'][0].geometry.location)
+          setLocation(true)
         })
         .catch((error) => {
           console.log(error);
@@ -226,7 +236,6 @@ function Maps() {
                         isClearable: true,
                         onChange: (value) => {
                           handleSelect(value)
-                          // console.log('value', value)
                         },
                         placeholder: 'Buscar...'
                       }}
@@ -241,9 +250,12 @@ function Maps() {
             {local && (
               <Marker position={position} icon={'/pin.png'} onClick={() => console.log('esta es su ubicacion')} />
             )}
-            {Markers.map((marker, key) => {
+            {location && (
+              <Marker position={center} icon={'/pin.png'} onClick={() => console.log('esta es su ubicacion')} />
+            )}
+            {markers.map((marker, key) => {
               return (
-                <Marker key={key} position={marker} onClick={() => console.log(marker.lat, marker.lng)} />
+                <Marker key={key} position={marker.Coords} icon={'/centro-de-reciclaje-3d-30.png'} onClick={() => console.log(marker)} />
               )
             })}
           </GoogleMap>
@@ -269,7 +281,7 @@ function Maps() {
           </Card>
           <DialogForum open={openDialogForum} onClose={handleCloseDialog} setReload={setReload} />
         </Box>
-        <Snackbar open={openAlert} autoHideDuration={2000} onClose={handleCloseAlert}>
+        <Snackbar open={openAlert} autoHideDuration={2000} onClose={handleCloseAlert} sx={{ zIndex: 10 }}>
           <Alert onClose={handleCloseAlert} severity={severity} sx={{ width: '100%' }}>
             {message}
           </Alert>

@@ -1,7 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
-import { doc, setDoc, getDoc, collection, getDocs, updateDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc, collection, getDocs, updateDoc, addDoc } from "firebase/firestore";
 import uniqid from 'uniqid';
 
 // Your web app's Firebase configuration
@@ -23,25 +23,29 @@ onAuthStateChanged(auth, async (user) => {
   if (user) {
     const uid = user.uid;
     const email = user.email;
-    localStorage.setItem('user', uid)
+    if (!localStorage.getItem('user')) {
+      localStorage.setItem('user', uid)
+    }
     const dataUsers = await queryData('users')
     const users = dataUsers.docs
-    let id = ''
-    users.forEach(async (doc) => {
-      if (doc.data().email === email && !doc.data().uid) {
-        id = doc.id
-        await updateData('users', id, { uid: uid })
-      }
-      if(doc.data().email === email){
-        localStorage.setItem('rol', doc.data().rol)
-      }
-    })
+    if (users) {
+      let id = ''
+      users.forEach(async (doc) => {
+        if (doc.data().email.toLowerCase() === email && !doc.data().uid) {
+          id = doc.id
+          await updateData('users', id, { uid: uid })
+        }
+        if (doc.data().email.toLowerCase() === email && !localStorage.getItem('rol')) {
+          localStorage.setItem('rol', doc.data().rol)
+        }
+      })
+    }
   }
 });
 
 export default db;
 
-export async function registrarUsuario(email, name, password, rol) {
+export async function registrarUsuario(email, name, password, rol, admin, recyclePoint) {
   let flag = false
   await createUserWithEmailAndPassword(auth, email, password).then(() => {
     // Signed in
@@ -57,12 +61,22 @@ export async function registrarUsuario(email, name, password, rol) {
   if (flag) {
     try {
       const id = uniqid()
-      await setDoc(doc(db, "users", id), {
-        name: name,
-        email: email,
-        rol: rol,
-        password: password
-      });
+      if (admin) {
+        await setDoc(doc(db, "users", id), {
+          name: name,
+          email: email,
+          rol: rol,
+          password: password,
+          recyclePoint: recyclePoint
+        });
+      } else {
+        await setDoc(doc(db, "users", id), {
+          name: name,
+          email: email,
+          rol: rol,
+          password: password
+        });
+      }
     } catch (error) {
       console.log(error)
     }
@@ -98,4 +112,9 @@ export async function queryData(collectionName) {
 export async function updateData(collection, document, collectionObject) {
   const docRef = doc(db, collection, document);
   await updateDoc(docRef, collectionObject);
+}
+
+export async function addDocs(collectionName, data) {
+  let queryCollection = collection(db, collectionName)
+  await addDoc(queryCollection, data);
 }
