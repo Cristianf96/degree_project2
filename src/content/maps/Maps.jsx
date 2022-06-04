@@ -17,6 +17,7 @@ import GroupAddIcon from '@mui/icons-material/GroupAdd';
 import DialogTips from '../../component/Dialogs/DialogTips';
 import DialogUsers from '../../component/Dialogs/DialogUsers';
 import DialogForum from '../../component/Dialogs/DialogForum';
+import DialogProfile from '../../component/Dialogs/DialogProfile';
 
 import { logout, queryData } from '../../utils/firebase';
 
@@ -29,6 +30,8 @@ let actions = [
 const Alert = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
+
+const libraries = [`places`];
 
 function Maps() {
 
@@ -45,14 +48,16 @@ function Maps() {
   const [openDialogTips, setOpenDialogTips] = useState(false)
   const [openDialogUsers, setOpenDialogUsers] = useState(false)
   const [openDialogForum, setOpenDialogForum] = useState(false)
+  const [openDialogProfile, setOpenDialogProfile] = useState(false)
   const [openAlert, setOpenAlert] = useState(false);
   const [severity, setSeverity] = useState('');
   const [message, setMessage] = useState('');
   const [values, setValues] = useState({});
+  // const [libraries] = useState([`places`]);
 
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.REACT_APP_GOOGLEMAPS_APIKEY,
-    libraries: ['places']
+    libraries
   })
 
   const handleOpen = () => setOpen(true);
@@ -153,6 +158,9 @@ function Maps() {
       case 'Create':
         setOpenDialogUsers(true)
         break
+      case 'Profile':
+        setOpenDialogProfile(true)
+        break;
       default:
         break;
     }
@@ -162,6 +170,7 @@ function Maps() {
     setOpenDialogTips(false)
     setOpenDialogUsers(false)
     setOpenDialogForum(false)
+    setOpenDialogProfile(false)
     setValues({})
     handleClose()
     // setReload(true)
@@ -267,6 +276,7 @@ function Maps() {
           zIndex: 1,
         }}>
           {/* <DialogSearch open={openDialogSearch} onClose={handleCloseDialog} setReload={setReload} /> */}
+          <DialogProfile open={openDialogProfile} onClose={handleCloseDialog} setReload={setReload} />
           <DialogTips open={openDialogTips} onClose={handleCloseDialog} setReload={setReload} />
           <DialogUsers open={openDialogUsers} onClose={handleCloseDialog} setReload={setReload} handleClickAlert={handleClickAlert} />
           <Card sx={{ marginTop: '85vh', borderRadius: 20 }}>

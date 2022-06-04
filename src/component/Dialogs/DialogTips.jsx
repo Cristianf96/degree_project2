@@ -136,7 +136,7 @@ const DialogTips = (props) => {
                                             {classification.blanca.map((item, i) => {
                                                 return (
                                                     <>
-                                                        <Box sx={{ marginBottom: 1 }} key={i}>
+                                                        <Box sx={{ marginBottom: 1 }} key={i + new Date()}>
                                                             <Typography variant='subtitle2' sx={{ marginBottom: 0.5, fontWeight: '600', fontSize: '17px' }}>
                                                                 {item.title}
                                                             </Typography>
@@ -164,7 +164,7 @@ const DialogTips = (props) => {
                                             {classification.negra.map((item, i) => {
                                                 return (
                                                     <>
-                                                        <Box sx={{ marginBottom: 1 }} key={i}>
+                                                        <Box sx={{ marginBottom: 1 }} key={i + new Date()}>
                                                             <Typography variant='body2' sx={{ marginBottom: 0.5 }}>
                                                                 {item.title}
                                                             </Typography>
@@ -206,7 +206,7 @@ const DialogTips = (props) => {
                                                 {classification.blanca.map((item, i) => {
                                                     return (
                                                         <>
-                                                            <Box sx={{ marginBottom: 1 }} key={i}>
+                                                            <Box sx={{ marginBottom: 1 }} key={i + new Date()}>
                                                                 <Typography variant='subtitle2' sx={{ marginBottom: 0.5, fontWeight: '600', fontSize: '17px' }}>
                                                                     {item.title}
                                                                 </Typography>
@@ -234,7 +234,7 @@ const DialogTips = (props) => {
                                                 {classification.negra.map((item, i) => {
                                                     return (
                                                         <>
-                                                            <Box sx={{ marginBottom: 1 }} key={i}>
+                                                            <Box sx={{ marginBottom: 1 }} key={i + new Date()}>
                                                                 <Typography variant='body2' sx={{ marginBottom: 0.5 }}>
                                                                     {item.title}
                                                                 </Typography>
@@ -265,7 +265,7 @@ const DialogTips = (props) => {
                                                 {classification.verde.map((item, i) => {
                                                     return (
                                                         <>
-                                                            <Box sx={{ marginBottom: 1 }} key={i}>
+                                                            <Box sx={{ marginBottom: 1 }} key={i + new Date()}>
                                                                 <Typography variant='body2' sx={{ marginBottom: 0.5 }}>
                                                                     {item.title}
                                                                 </Typography>
@@ -305,7 +305,7 @@ const DialogTips = (props) => {
                                                 {classification.blanca.map((item, i) => {
                                                     return (
                                                         <>
-                                                            <Box sx={{ marginBottom: 1 }} key={i}>
+                                                            <Box sx={{ marginBottom: 1 }} key={i + new Date()}>
                                                                 <Typography variant='subtitle2' sx={{ marginBottom: 0.5, fontWeight: '600', fontSize: '17px' }}>
                                                                     {item.title}
                                                                 </Typography>
@@ -333,7 +333,7 @@ const DialogTips = (props) => {
                                                 {classification.negra.map((item, i) => {
                                                     return (
                                                         <>
-                                                            <Box sx={{ marginBottom: 1 }} key={i}>
+                                                            <Box sx={{ marginBottom: 1 }} key={i + new Date()}>
                                                                 <Typography variant='body2' sx={{ marginBottom: 0.5 }}>
                                                                     {item.title}
                                                                 </Typography>
@@ -364,7 +364,7 @@ const DialogTips = (props) => {
                                                 {classification.verde.map((item, i) => {
                                                     return (
                                                         <>
-                                                            <Box sx={{ marginBottom: 1 }} key={i}>
+                                                            <Box sx={{ marginBottom: 1 }} key={i + new Date()}>
                                                                 <Typography variant='body2' sx={{ marginBottom: 0.5 }}>
                                                                     {item.title}
                                                                 </Typography>
@@ -389,7 +389,7 @@ const DialogTips = (props) => {
                                                 {classification.roja.map((item, i) => {
                                                     return (
                                                         <>
-                                                            <Box sx={{ marginBottom: 1 }} key={i}>
+                                                            <Box sx={{ marginBottom: 1 }} key={i + new Date()}>
                                                                 <Typography variant='subtitle2' sx={{ marginBottom: 0.5, fontWeight: '600', fontSize: '17px' }}>
                                                                     {item.title}
                                                                 </Typography>
