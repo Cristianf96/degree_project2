@@ -573,14 +573,14 @@ const DialogUsers = (props) => {
                                             fullscreenControl: false
                                         }}
                                         onLoad={map => setMap(map)}
-                                        onClick={(event) => {
-                                            setDataRecyclingPoint(
-                                                dataRecyclingPoint => (
-                                                    { ...dataRecyclingPoint, coords: { lat: event.latLng.lat(), lng: event.latLng.lng() } }
-                                                )
-                                            )
-                                                ; setLocation(true); setLocal(false)
-                                        }}
+                                        // onClick={(event) => {
+                                        //     setDataRecyclingPoint(
+                                        //         dataRecyclingPoint => (
+                                        //             { ...dataRecyclingPoint, coords: { lat: event.latLng.lat(), lng: event.latLng.lng() } }
+                                        //         )
+                                        //     )
+                                        //         ; setLocation(true); setLocal(false)
+                                        // }}
                                     >
                                         <Stack direction={'row'}>
                                             <Box sx={{ width: '230px', fontFamily: 'monospace', fontSize: 15, zIndex: 10, margin: 1 }}>
