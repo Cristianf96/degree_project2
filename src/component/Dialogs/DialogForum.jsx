@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react'
 
 import { TextField, Dialog, DialogTitle, DialogContent, DialogActions, Button, Stack, Popover, Typography, Box, Card, CardContent, CardActions } from '@mui/material';
 import ForumIcon from '@mui/icons-material/Forum';
+import LinearProgress from '@mui/material/LinearProgress';
 import { addDocs, queryData } from '../../utils/firebase';
 
 const DialogForum = (props) => {
 
-    // const [disabled, setDisabled] = useState(true)
+    const [load, setLoad] = useState(false)
     const [value, setValue] = useState({ material: '', descripcion: '', movil: '', email: '' })
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [error, setError] = React.useState(false);
@@ -38,6 +39,7 @@ const DialogForum = (props) => {
                 })
                 setDataForum(objForum)
             }
+            setLoad(true)
         }
         getInformation()
     }, [uid])
@@ -71,6 +73,7 @@ const DialogForum = (props) => {
 
     const open = Boolean(anchorEl);
     const id = open ? 'simple-popover' : undefined;
+
     return (
         <Dialog
             aria-labelledby="customized-dialog-title"
@@ -140,37 +143,47 @@ const DialogForum = (props) => {
                 </Stack>
             </DialogTitle>
             <DialogContent dividers>
-                {dataForum.length > 0 && dataForum.map((item) => {
-                    return (
-                        <Box sx={{ marginBottom: 1, marginTop: 1 }} key={item.id}>
-                            <Card sx={{ minWidth: 275 }}>
-                                <CardContent>
-                                    <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
-                                        {item.data.name}
-                                    </Typography>
-                                    <Typography variant="h5" component="div">
-                                        {item.data.material}
-                                    </Typography>
-                                    <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                                        {item.data.descripcion}
-                                    </Typography>
-                                </CardContent>
-                                {rol === 'admin' && (
-                                    <CardActions>
-                                        <Button size="large">Contactar</Button>
-                                    </CardActions>
-                                )}
-                            </Card>
+                {!load ? (
+                    <>
+                        <Box>
+                            <LinearProgress variant='indeterminate'/>
                         </Box>
-                    )
-                })}
+                    </>
+                ) : (
+                    <>
+                        {dataForum.length > 0 && dataForum.map((item) => {
+                            return (
+                                <Box sx={{ marginBottom: 1, marginTop: 1 }} key={item.id}>
+                                    <Card sx={{ minWidth: 275 }}>
+                                        <CardContent>
+                                            <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
+                                                {item.data.name}
+                                            </Typography>
+                                            <Typography variant="h5" component="div">
+                                                {item.data.material}
+                                            </Typography>
+                                            <Typography sx={{ mb: 1.5 }} color="text.secondary">
+                                                {item.data.descripcion}
+                                            </Typography>
+                                        </CardContent>
+                                        {rol === 'admin' && (
+                                            <CardActions>
+                                                <Button size="large">Contactar</Button>
+                                            </CardActions>
+                                        )}
+                                    </Card>
+                                </Box>
+                            )
+                        })}
+                    </>
+                )}
             </DialogContent>
             <DialogActions>
                 <Button onClick={props.onClose} variant="contained" color="error">
                     Cancelar
                 </Button>
             </DialogActions>
-        </Dialog>
+        </Dialog >
     )
 }
 
