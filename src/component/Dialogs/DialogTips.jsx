@@ -133,10 +133,10 @@ const DialogTips = (props) => {
                                             </Typography>
                                         </AccordionSummary>
                                         <AccordionDetails>
-                                            {classification.blanca.map((item, i) => {
+                                            {classification.blanca.length > 0 && classification.blanca.map((item) => {
                                                 return (
                                                     <>
-                                                        <Box sx={{ marginBottom: 1 }} key={i + new Date()}>
+                                                        <Box sx={{ marginBottom: 1 }} key={item.title}>
                                                             <Typography variant='subtitle2' sx={{ marginBottom: 0.5, fontWeight: '600', fontSize: '17px' }}>
                                                                 {item.title}
                                                             </Typography>
@@ -161,10 +161,10 @@ const DialogTips = (props) => {
                                             </Typography>
                                         </AccordionSummary>
                                         <AccordionDetails sx={{ backgroundColor: 'black', color: 'white' }}>
-                                            {classification.negra.map((item, i) => {
+                                            {classification.negra.length > 0 && classification.negra.map((item) => {
                                                 return (
                                                     <>
-                                                        <Box sx={{ marginBottom: 1 }} key={i + new Date()}>
+                                                        <Box sx={{ marginBottom: 1 }} key={item.title}>
                                                             <Typography variant='body2' sx={{ marginBottom: 0.5 }}>
                                                                 {item.title}
                                                             </Typography>
@@ -203,10 +203,10 @@ const DialogTips = (props) => {
                                                 </Typography>
                                             </AccordionSummary>
                                             <AccordionDetails>
-                                                {classification.blanca.map((item, i) => {
+                                                {classification.blanca.length > 0 && classification.blanca.map((item) => {
                                                     return (
                                                         <>
-                                                            <Box sx={{ marginBottom: 1 }} key={i + new Date()}>
+                                                            <Box sx={{ marginBottom: 1 }} key={item.title}>
                                                                 <Typography variant='subtitle2' sx={{ marginBottom: 0.5, fontWeight: '600', fontSize: '17px' }}>
                                                                     {item.title}
                                                                 </Typography>
@@ -231,10 +231,10 @@ const DialogTips = (props) => {
                                                 </Typography>
                                             </AccordionSummary>
                                             <AccordionDetails sx={{ backgroundColor: 'black', color: 'white' }}>
-                                                {classification.negra.map((item, i) => {
+                                                {classification.negra.length > 0 && classification.negra.map((item) => {
                                                     return (
                                                         <>
-                                                            <Box sx={{ marginBottom: 1 }} key={i + new Date()}>
+                                                            <Box sx={{ marginBottom: 1 }} key={item.title}>
                                                                 <Typography variant='body2' sx={{ marginBottom: 0.5 }}>
                                                                     {item.title}
                                                                 </Typography>
@@ -262,10 +262,10 @@ const DialogTips = (props) => {
                                                 <Typography sx={{ marginBottom: 1, fontWeight: '600' }}>
                                                     De acuerdo con la resolución 2184 de 2019 que entra en vigencia a partir de enero de 2021.
                                                 </Typography>
-                                                {classification.verde.map((item, i) => {
+                                                {classification.verde.length > 0 && classification.verde.map((item) => {
                                                     return (
                                                         <>
-                                                            <Box sx={{ marginBottom: 1 }} key={i + new Date()}>
+                                                            <Box sx={{ marginBottom: 1 }} key={item.title}>
                                                                 <Typography variant='body2' sx={{ marginBottom: 0.5 }}>
                                                                     {item.title}
                                                                 </Typography>
@@ -302,10 +302,10 @@ const DialogTips = (props) => {
                                                 </Typography>
                                             </AccordionSummary>
                                             <AccordionDetails>
-                                                {classification.blanca.map((item, i) => {
+                                                {classification.blanca.length > 0 && classification.blanca.map((item) => {
                                                     return (
                                                         <>
-                                                            <Box sx={{ marginBottom: 1 }} key={i + new Date()}>
+                                                            <Box sx={{ marginBottom: 1 }} key={item.title}>
                                                                 <Typography variant='subtitle2' sx={{ marginBottom: 0.5, fontWeight: '600', fontSize: '17px' }}>
                                                                     {item.title}
                                                                 </Typography>
@@ -330,10 +330,10 @@ const DialogTips = (props) => {
                                                 </Typography>
                                             </AccordionSummary>
                                             <AccordionDetails sx={{ backgroundColor: 'black', color: 'white' }}>
-                                                {classification.negra.map((item, i) => {
+                                                {classification.negra.length > 0 && classification.negra.map((item) => {
                                                     return (
                                                         <>
-                                                            <Box sx={{ marginBottom: 1 }} key={i + new Date()}>
+                                                            <Box sx={{ marginBottom: 1 }} key={item.title}>
                                                                 <Typography variant='body2' sx={{ marginBottom: 0.5 }}>
                                                                     {item.title}
                                                                 </Typography>
@@ -361,10 +361,10 @@ const DialogTips = (props) => {
                                                 <Typography sx={{ marginBottom: 1, fontWeight: '600' }}>
                                                     De acuerdo con la resolución 2184 de 2019 que entra en vigencia a partir de enero de 2021.
                                                 </Typography>
-                                                {classification.verde.map((item, i) => {
+                                                {classification.verde.length > 0 && classification.verde.map((item) => {
                                                     return (
                                                         <>
-                                                            <Box sx={{ marginBottom: 1 }} key={i + new Date()}>
+                                                            <Box sx={{ marginBottom: 1 }} key={item.title}>
                                                                 <Typography variant='body2' sx={{ marginBottom: 0.5 }}>
                                                                     {item.title}
                                                                 </Typography>
@@ -386,10 +386,10 @@ const DialogTips = (props) => {
                                                 </Typography>
                                             </AccordionSummary>
                                             <AccordionDetails sx={{ backgroundColor: '#d32f2f', color: 'white' }}>
-                                                {classification.roja.map((item, i) => {
+                                                {classification.roja.length > 0 && classification.roja.map((item) => {
                                                     return (
                                                         <>
-                                                            <Box sx={{ marginBottom: 1 }} key={i + new Date()}>
+                                                            <Box sx={{ marginBottom: 1 }} key={item.title}>
                                                                 <Typography variant='subtitle2' sx={{ marginBottom: 0.5, fontWeight: '600', fontSize: '17px' }}>
                                                                     {item.title}
                                                                 </Typography>
