@@ -31,6 +31,7 @@ const DialogRecyclePoint = (props) => {
         libraries: ['places']
     })
 
+    const rol = localStorage.getItem('rol')
     const [edit, setEdit] = useState(true)
     const isRecoleccionTitle = 'Horario de recoleccion'
     const isRecibeTitle = 'Recibe'
@@ -108,7 +109,7 @@ const DialogRecyclePoint = (props) => {
             props.setDataRecyclePoint(dataEdit)
             setLoad(true)
             setEdit(!edit)
-        }else {
+        } else {
             setError(true)
         }
     }
@@ -136,17 +137,19 @@ const DialogRecyclePoint = (props) => {
                     </Typography>
                     <Box>
                         <Stack direction={'row'} spacing={1}>
-                            <Tooltip title={edit ? "Edit" : 'Save'}>
-                                {edit ? (
-                                    <IconButton onClick={() => handleOpenEdit(props.dataRecyclePoint)}>
-                                        <EditIcon sx={{ color: 'black' }} />
-                                    </IconButton>
-                                ) : (
-                                    <IconButton onClick={() => updateDataUser(true)}>
-                                        <SaveIcon sx={{ color: 'green' }} />
-                                    </IconButton>
-                                )}
-                            </Tooltip>
+                            {rol === 'admin' && (
+                                <Tooltip title={edit ? "Edit" : 'Save'}>
+                                    {edit ? (
+                                        <IconButton onClick={() => handleOpenEdit(props.dataRecyclePoint)}>
+                                            <EditIcon sx={{ color: 'black' }} />
+                                        </IconButton>
+                                    ) : (
+                                        <IconButton onClick={() => updateDataUser(true)}>
+                                            <SaveIcon sx={{ color: 'green' }} />
+                                        </IconButton>
+                                    )}
+                                </Tooltip>
+                            )}
                             <Badge badgeContent={0} color="primary">
                                 <GiteIcon fontSize='large' />
                             </Badge>
