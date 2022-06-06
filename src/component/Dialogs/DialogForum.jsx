@@ -1,16 +1,24 @@
 import React, { useEffect, useState } from 'react'
 
-import { TextField, Dialog, DialogTitle, DialogContent, DialogActions, Button, Stack, Popover, Typography, Box, Card, CardContent, CardActions } from '@mui/material';
+import { TextField, Dialog, DialogTitle, DialogContent, DialogActions, Button, Stack, Popover, Typography, Box, Card, CardContent, CardActions, Slide, Tooltip, IconButton } from '@mui/material';
 import ForumIcon from '@mui/icons-material/Forum';
-import { addDocs, queryData } from '../../utils/firebase';
+import LinearProgress from '@mui/material/LinearProgress';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import RestoreFromTrashIcon from '@mui/icons-material/RestoreFromTrash';
+import { addDocs, queryData, DeleteDoc } from '../../utils/firebase';
+
+const Transition = React.forwardRef(function Transition(props, ref) {
+    return <Slide direction="up" ref={ref} {...props} />;
+});
 
 const DialogForum = (props) => {
 
-    // const [disabled, setDisabled] = useState(true)
+    const [load, setLoad] = useState(false)
     const [value, setValue] = useState({ material: '', descripcion: '', movil: '', email: '' })
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [error, setError] = React.useState(false);
-    // const [reload, setReload] = React.useState(false);
+    const [openInformation, setOpenInformation] = React.useState(false);
+    const [reload, setReload] = React.useState(false);
     const [dataUSer, setDataUSer] = useState({})
     const [dataForum, setDataForum] = useState([])
     const rol = localStorage.getItem('rol') ?? ""
@@ -18,6 +26,9 @@ const DialogForum = (props) => {
 
     useEffect(() => {
         const getInformation = async () => {
+            if (reload) {
+                setReload(false)
+            }
             const dataUsers = await queryData('users')
             const data = dataUsers.docs
             if (data) {
@@ -38,14 +49,13 @@ const DialogForum = (props) => {
                 })
                 setDataForum(objForum)
             }
+            setLoad(true)
         }
         getInformation()
-    }, [uid])
+    }, [reload, uid])
 
     const handlePost = async () => {
         if (value && value.material !== '' && value.descripcion !== '' && value.movil !== '' && value.email !== '') {
-            console.log('value', value)
-            console.log('dataUSer', dataUSer)
             await addDocs('forum', {
                 name: dataUSer.name,
                 emailUser: dataUSer.email,
@@ -56,6 +66,8 @@ const DialogForum = (props) => {
             })
             setError(false)
             setAnchorEl(null);
+            props.setReload(true)
+            setReload(true)
         } else {
             setError(true)
         }
@@ -69,8 +81,23 @@ const DialogForum = (props) => {
         setAnchorEl(null);
     };
 
+    const handleCloseDialog = () => {
+        setOpenInformation(false);
+    };
+
     const open = Boolean(anchorEl);
     const id = open ? 'simple-popover' : undefined;
+
+    const handleChangeOpenInformation = (data) => {
+        setOpenInformation(true)
+    }
+
+    const aceptarSAolicitud = async (data) => {
+        await DeleteDoc('forum', data)
+        props.setReload(true)
+        setReload(true)
+    }
+
     return (
         <Dialog
             aria-labelledby="customized-dialog-title"
@@ -140,37 +167,116 @@ const DialogForum = (props) => {
                 </Stack>
             </DialogTitle>
             <DialogContent dividers>
-                {dataForum.length > 0 && dataForum.map((item) => {
-                    return (
-                        <Box sx={{ marginBottom: 1, marginTop: 1 }} key={item.id}>
-                            <Card sx={{ minWidth: 275 }}>
-                                <CardContent>
-                                    <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
-                                        {item.data.name}
-                                    </Typography>
-                                    <Typography variant="h5" component="div">
-                                        {item.data.material}
-                                    </Typography>
-                                    <Typography sx={{ mb: 1.5 }} color="text.secondary">
-                                        {item.data.descripcion}
-                                    </Typography>
-                                </CardContent>
-                                {rol === 'admin' && (
-                                    <CardActions>
-                                        <Button size="large">Contactar</Button>
-                                    </CardActions>
-                                )}
-                            </Card>
+                {!load ? (
+                    <>
+                        <Box>
+                            <LinearProgress variant='indeterminate' />
                         </Box>
-                    )
-                })}
+                    </>
+                ) : (
+                    <>
+                        {dataForum.length > 0 && dataForum.map((item) => {
+                            return (
+                                <Box sx={{ marginBottom: 1, marginTop: 1 }} key={item.id}>
+                                    <Card sx={{ minWidth: 275 }}>
+                                        <CardContent>
+                                            <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>
+                                                {item.data.name}
+                                            </Typography>
+                                            <Typography variant="h5" component="div">
+                                                {item.data.material}
+                                            </Typography>
+                                            <Typography sx={{ mb: 1.5 }} color="text.secondary">
+                                                {item.data.descripcion}
+                                            </Typography>
+                                        </CardContent>
+                                        {rol === 'admin' && (
+                                            <CardActions>
+                                                <Button size="large" onClick={() => handleChangeOpenInformation(item.data)}>Contactar</Button>
+                                                <Button size="large" onClick={() => aceptarSAolicitud(item.id)} endIcon={<RestoreFromTrashIcon />}>Aceptar</Button>
+                                            </CardActions>
+
+                                        )}
+                                    </Card>
+
+                                    <Dialog
+                                        open={openInformation}
+                                        TransitionComponent={Transition}
+                                        keepMounted
+                                        onClose={handleCloseDialog}
+                                        aria-describedby="alert-dialog-slide-description"
+                                    >
+                                        <DialogTitle>
+                                            <Stack direction={'row'} spacing={1} justifyContent={'space-between'} alignItems={'center'}>
+                                                <Stack direction={'row'} spacing={1} >
+                                                    <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
+                                                        {'Solicitante: '}
+                                                    </Typography>
+                                                    <Typography variant='subtitle1' sx={{ textAlign: 'center' }}>
+                                                        {item.data.name}
+                                                    </Typography>
+                                                </Stack>
+                                                <Box>
+                                                    <Tooltip title="Atras">
+                                                        <IconButton onClick={handleCloseDialog}>
+                                                            <ArrowBackIcon sx={{ color: 'black' }} />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                </Box>
+                                            </Stack>
+                                        </DialogTitle>
+                                        <DialogContent>
+                                            <Typography sx={{ mb: 1.5 }} variant="h5" component="div">
+                                                {item.data.material}
+                                            </Typography>
+                                            <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
+                                                Descripcion de la solicitud:
+                                            </Typography>
+                                            <Typography sx={{ mb: 1.5 }} color="text.secondary">
+                                                {item.data.descripcion}
+                                            </Typography>
+                                            <Stack direction={'row'} spacing={1}>
+                                                <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
+                                                    {'Celular: '}
+                                                </Typography>
+                                                <Typography variant='subtitle1' sx={{ textAlign: 'center' }}>
+                                                    {item.data.movil}
+                                                </Typography>
+                                            </Stack>
+                                            <Stack direction={'row'} spacing={1}>
+                                                <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
+                                                    {'Email: '}
+                                                </Typography>
+                                                <Typography variant='subtitle1' sx={{ textAlign: 'center' }}>
+                                                    {item.data.emailUser}
+                                                </Typography>
+                                            </Stack>
+                                            <Stack direction={'row'} spacing={1}>
+                                                <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
+                                                    {'Contacto: '}
+                                                </Typography>
+                                                <Typography variant='subtitle1' sx={{ textAlign: 'center' }}>
+                                                    {item.data.emailForum}
+                                                </Typography>
+                                            </Stack>
+                                        </DialogContent>
+                                        <DialogActions>
+                                            {/* <Button onClick={handleClose}>Disagree</Button>
+                                            <Button onClick={handleClose}>Agree</Button> */}
+                                        </DialogActions>
+                                    </Dialog>
+                                </Box>
+                            )
+                        })}
+                    </>
+                )}
             </DialogContent>
             <DialogActions>
                 <Button onClick={props.onClose} variant="contained" color="error">
                     Cancelar
                 </Button>
             </DialogActions>
-        </Dialog>
+        </Dialog >
     )
 }
 

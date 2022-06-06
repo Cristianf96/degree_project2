@@ -118,7 +118,7 @@ const DialogUsers = (props) => {
                 }
             } else {
                 handleClose()
-                props.handleClickAlert('error', 'No coincide la password o tiene menos de 6 caracteres')
+                props.handleClickAlert('error', 'No coincide la password o tiene menos de 7 caracteres')
                 props.onClose()
             }
         } else if (!add && data.email !== '' && data.name === '' && data.password !== '' && data.confirmPassword === '') {
@@ -573,14 +573,14 @@ const DialogUsers = (props) => {
                                             fullscreenControl: false
                                         }}
                                         onLoad={map => setMap(map)}
-                                        onClick={(event) => {
-                                            setDataRecyclingPoint(
-                                                dataRecyclingPoint => (
-                                                    { ...dataRecyclingPoint, coords: { lat: event.latLng.lat(), lng: event.latLng.lng() } }
-                                                )
-                                            )
-                                                ; setLocation(true); setLocal(false)
-                                        }}
+                                        // onClick={(event) => {
+                                        //     setDataRecyclingPoint(
+                                        //         dataRecyclingPoint => (
+                                        //             { ...dataRecyclingPoint, coords: { lat: event.latLng.lat(), lng: event.latLng.lng() } }
+                                        //         )
+                                        //     )
+                                        //         ; setLocation(true); setLocal(false)
+                                        // }}
                                     >
                                         <Stack direction={'row'}>
                                             <Box sx={{ width: '230px', fontFamily: 'monospace', fontSize: 15, zIndex: 10, margin: 1 }}>

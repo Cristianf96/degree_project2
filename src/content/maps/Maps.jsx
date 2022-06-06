@@ -13,10 +13,13 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 import MyLocationIcon from '@mui/icons-material/MyLocation';
 import GroupAddIcon from '@mui/icons-material/GroupAdd';
+import GiteIcon from '@mui/icons-material/Gite';
 
 import DialogTips from '../../component/Dialogs/DialogTips';
 import DialogUsers from '../../component/Dialogs/DialogUsers';
 import DialogForum from '../../component/Dialogs/DialogForum';
+import DialogProfile from '../../component/Dialogs/DialogProfile';
+import DialogRecyclePoint from '../../component/Dialogs/DialogRecyclePoint';
 
 import { logout, queryData } from '../../utils/firebase';
 
@@ -30,6 +33,8 @@ const Alert = React.forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
 });
 
+// const libraries = [`places`];
+
 function Maps() {
 
   const session = localStorage.getItem('user') ?? ""
@@ -37,7 +42,8 @@ function Maps() {
   const [center, setCenter] = useState(null)
   const [markers, setMarkers] = useState([]);
   const [position, setPosition] = useState(null)
-  const [map, setMap] = useState(null)
+  // const [destino, setDestino] = useState(null)
+  const [map, setMap] = useState(/** @type google.maps.Map */(null))
   const [local, setLocal] = useState(false);
   const [location, setLocation] = useState(false);
   const [open, setOpen] = useState(false);
@@ -45,10 +51,19 @@ function Maps() {
   const [openDialogTips, setOpenDialogTips] = useState(false)
   const [openDialogUsers, setOpenDialogUsers] = useState(false)
   const [openDialogForum, setOpenDialogForum] = useState(false)
+  const [openDialogProfile, setOpenDialogProfile] = useState(false)
+  const [openDialogRecyclePoint, setOpenDialogRecyclePoint] = useState(false)
   const [openAlert, setOpenAlert] = useState(false);
   const [severity, setSeverity] = useState('');
   const [message, setMessage] = useState('');
   const [values, setValues] = useState({});
+  const [dataRecyclePoint, setDataRecyclePoint] = useState({});
+  // const [directionResponse, setDirectionResponse] = useState(null)
+  // const [distance, setDistance] = useState('')
+  // const [duration, setDuration] = useState('')
+
+  // const originRef = useRef()
+  // const destinationRef = useRef()
 
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.REACT_APP_GOOGLEMAPS_APIKEY,
@@ -58,6 +73,54 @@ function Maps() {
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
+  // const calculateRoute = async () => {
+  //   // if(directionResponse){
+  //   //   clearRoute()
+  //   //   calculateRoute()
+  //   // }
+  //   const arrayPosition = []
+  //   const arrayDestino = []
+  //   Object.keys(position).forEach((item) => {
+  //     if (item === 'lat') {
+  //       arrayPosition.push(position[item])
+  //     } else {
+  //       arrayPosition.push(position[item])
+  //     }
+  //   })
+  //   Object.keys(destino).forEach((item) => {
+  //     if (item === 'lat') {
+  //       arrayDestino.push(destino[item])
+  //     } else {
+  //       arrayDestino.push(destino[item])
+  //     }
+  //   })
+  //   const stringPosition = arrayPosition.toString()
+  //   const stringDestino = arrayDestino.toString()
+  //   if (stringDestino === '' || stringPosition === '') return
+
+  //   // eslint-disable-next-line no-undef
+  //   const directionsService = new google.maps.DirectionsService()
+  //   const results = await directionsService.route({
+  //     origin: stringPosition,
+  //     destination: stringDestino,
+  //     // eslint-disable-next-line no-undef
+  //     travelMode: google.maps.TravelMode.DRIVING,
+  //   })
+  //   if (results) {
+  //     setDirectionResponse(results)
+  //     handleCloseDialog()
+  //   }
+  //   // console.log('results.routes[0].legs[0].distance.text :>> ', results.routes[0].legs[0].distance.text);
+  //   // console.log('results.routes[0].legs[0].duration.text :>> ', results.routes[0].legs[0].duration.text);
+  // }
+
+  // const clearRoute = () => {
+  //   setDirectionResponse(null)
+  //   // setDistance('')
+  //   // setDuration('')
+  //   // originRef.current.value = ''
+  //   // destinationRef.current.value = ''
+  // }
 
   function success(pos) {
     var crd = pos.coords;
@@ -69,6 +132,7 @@ function Maps() {
       lat: crd.latitude,
       lng: crd.longitude
     })
+    // console.log('crd :>> ', crd);
     setLocal(true)
     setLocation(false)
   };
@@ -86,6 +150,7 @@ function Maps() {
       };
       navigator.geolocation.getCurrentPosition(success, error, options)
       const found = actions.find(element => element.name === 'Logout');
+      let userPositionId = []
       if (session && !found && rol) {
         if (rol === 'staff') {
           actions = [
@@ -104,14 +169,39 @@ function Maps() {
             { icon: <LogoutIcon />, name: 'Logout' }
           ]
         }
+        if (rol === 'admin') {
+          actions = [
+            { icon: <PersonIcon />, name: 'Profile' },
+            { icon: <TipsAndUpdatesIcon />, name: 'Tips' },
+            { icon: <ForumIcon />, name: 'Forum' },
+            { icon: <GiteIcon />, name: 'Punto' },
+            { icon: <LogoutIcon />, name: 'Logout' }
+          ]
+          const dataUsers = await queryData('users')
+          const user = dataUsers.docs
+          if (user) {
+            user.forEach((doc) => {
+              if (doc.data().uid === session) {
+                userPositionId.push({ data: doc.data(), idUser: doc.id })
+              }
+            })
+          }
+        }
       }
-      const dataUsers = await queryData('locations')
-      const positions = dataUsers.docs
+      const dataLocations = await queryData('locations')
+      const positions = dataLocations.docs
       if (positions) {
         let Markers = []
+        let pointAdmin = []
         positions.forEach((doc) => {
           Markers.push(doc.data())
+          if (rol === 'admin' && doc.id === userPositionId[0].data.recyclePoint) {
+            pointAdmin.push(doc.data())
+          }
         })
+        setCenter(pointAdmin[0].Coords)
+        setDataRecyclePoint(pointAdmin[0])
+        // setPosition(pointAdmin[0].Coords)
         setMarkers(Markers)
       }
       if (reload) {
@@ -125,7 +215,6 @@ function Maps() {
     if (reason === 'clickaway') {
       return;
     }
-
     setOpenAlert(false);
   };
 
@@ -153,6 +242,12 @@ function Maps() {
       case 'Create':
         setOpenDialogUsers(true)
         break
+      case 'Profile':
+        setOpenDialogProfile(true)
+        break;
+      case 'Punto':
+        handleOpenRecyclePoint(dataRecyclePoint)
+        break;
       default:
         break;
     }
@@ -162,12 +257,15 @@ function Maps() {
     setOpenDialogTips(false)
     setOpenDialogUsers(false)
     setOpenDialogForum(false)
+    setOpenDialogProfile(false)
+    setOpenDialogRecyclePoint(false)
     setValues({})
     handleClose()
-    // setReload(true)
+    // setDataRecyclePoint(null)
   }
 
   const handleSelect = (value) => {
+    console.log('value :>> ', value);
     setLocal(false)
     if (value) {
       const url = `https://maps.googleapis.com/maps/api/geocode/json?place_id=${value.value.place_id}&key=${process.env.REACT_APP_GOOGLEMAPS_APIKEY}`
@@ -180,6 +278,13 @@ function Maps() {
           console.log(error);
         })
     }
+  }
+
+  const handleOpenRecyclePoint = (recyclePoint) => {
+    // console.log('recyclePoint', recyclePoint)
+    // setDestino(recyclePoint.Coords)
+    setDataRecyclePoint(recyclePoint)
+    setOpenDialogRecyclePoint(true)
   }
 
   if (!isLoaded) return <div>Loading...</div>
@@ -248,16 +353,17 @@ function Maps() {
               </Box>
             </Box>
             {local && (
-              <Marker position={position} icon={'/pin.png'} onClick={() => console.log('esta es su ubicacion')} />
+              <Marker position={position} icon={'/pin.png'} onCLick={() => console.log('este es su ubicacion 1')} />
             )}
             {location && (
-              <Marker position={center} icon={'/pin.png'} onClick={() => console.log('esta es su ubicacion')} />
+              <Marker position={center} icon={'/pin.png'} onCLick={() => console.log('este es su ubicacion 2')} />
             )}
             {markers.map((marker, key) => {
               return (
-                <Marker key={key} position={marker.Coords} icon={'/centro-de-reciclaje-3d-30.png'} onClick={() => console.log(marker)} />
+                <Marker key={key} position={marker.Coords} icon={'/centro-de-reciclaje-3d-30.png'} onClick={() => { handleOpenRecyclePoint(marker); }} />
               )
             })}
+            {/* {directionResponse && <DirectionsRenderer directions={directionResponse} />} */}
           </GoogleMap>
         </Box>
         <Box sx={{
@@ -267,8 +373,15 @@ function Maps() {
           zIndex: 1,
         }}>
           {/* <DialogSearch open={openDialogSearch} onClose={handleCloseDialog} setReload={setReload} /> */}
-          <DialogTips open={openDialogTips} onClose={handleCloseDialog} setReload={setReload} />
-          <DialogUsers open={openDialogUsers} onClose={handleCloseDialog} setReload={setReload} handleClickAlert={handleClickAlert} />
+          {openDialogProfile && (
+            <DialogProfile open={openDialogProfile} onClose={handleCloseDialog} setReload={setReload} />
+          )}
+          {openDialogTips && (
+            <DialogTips open={openDialogTips} onClose={handleCloseDialog} setReload={setReload} />
+          )}
+          {openDialogUsers && (
+            <DialogUsers open={openDialogUsers} onClose={handleCloseDialog} setReload={setReload} handleClickAlert={handleClickAlert} />
+          )}
           <Card sx={{ marginTop: '85vh', borderRadius: 20 }}>
             <Stack>
               {/* <IconButton aria-label="navigate" size="large" color={'inherit'}>
@@ -279,7 +392,12 @@ function Maps() {
               </IconButton>
             </Stack>
           </Card>
-          <DialogForum open={openDialogForum} onClose={handleCloseDialog} setReload={setReload} />
+          {openDialogForum && (
+            <DialogForum open={openDialogForum} onClose={handleCloseDialog} setReload={setReload} />
+          )}
+          {openDialogRecyclePoint && (
+            <DialogRecyclePoint open={openDialogRecyclePoint} onClose={handleCloseDialog} setReload={setReload} dataRecyclePoint={dataRecyclePoint} />
+          )}
         </Box>
         <Snackbar open={openAlert} autoHideDuration={2000} onClose={handleCloseAlert} sx={{ zIndex: 10 }}>
           <Alert onClose={handleCloseAlert} severity={severity} sx={{ width: '100%' }}>
