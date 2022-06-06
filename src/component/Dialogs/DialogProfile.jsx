@@ -101,7 +101,6 @@ const DialogProfile = (props) => {
         if (reason === 'clickaway') {
             return;
         }
-
         setOpenAlert(false);
     };
 
@@ -199,7 +198,10 @@ const DialogProfile = (props) => {
                             Cancelar
                         </Button>
                     </DialogActions>
-                    <Snackbar open={openAlert} autoHideDuration={2000} onClose={handleCloseAlert} sx={{ zIndex: 10 }}>
+                    <Snackbar open={openAlert} autoHideDuration={2000} onClose={handleCloseAlert} sx={{ zIndex: 10 }} anchorOrigin={{
+                        vertical: 'top',
+                        horizontal: 'center'
+                    }} >
                         <Alert onClose={handleCloseAlert} severity={severity} sx={{ width: '100%' }}>
                             {message}
                         </Alert>

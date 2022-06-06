@@ -123,11 +123,18 @@ const DialogUsers = (props) => {
             }
         } else if (!add && data.email !== '' && data.name === '' && data.password !== '' && data.confirmPassword === '') {
             setError(false)
-            await iniciarSesion(data.email, data.password)
-            handleClose()
-            props.setReload(true)
-            props.handleClickAlert('success', 'Iniciaste Sesion')
-            props.onClose()
+            const flag = await iniciarSesion(data.email, data.password)
+            if (flag) {
+                handleClose()
+                props.setReload(true)
+                props.handleClickAlert('success', 'Iniciaste Sesion')
+                props.onClose()
+            } else {
+                handleClose()
+                props.setReload(true)
+                props.handleClickAlert('error', 'Debes registrarte para iniciar sesion')
+                props.onClose()
+            }
         } else {
             setError(true)
             setData({ email: '', name: '', password: '', confirmPassword: '', message: '' })
@@ -573,14 +580,14 @@ const DialogUsers = (props) => {
                                             fullscreenControl: false
                                         }}
                                         onLoad={map => setMap(map)}
-                                        // onClick={(event) => {
-                                        //     setDataRecyclingPoint(
-                                        //         dataRecyclingPoint => (
-                                        //             { ...dataRecyclingPoint, coords: { lat: event.latLng.lat(), lng: event.latLng.lng() } }
-                                        //         )
-                                        //     )
-                                        //         ; setLocation(true); setLocal(false)
-                                        // }}
+                                    // onClick={(event) => {
+                                    //     setDataRecyclingPoint(
+                                    //         dataRecyclingPoint => (
+                                    //             { ...dataRecyclingPoint, coords: { lat: event.latLng.lat(), lng: event.latLng.lng() } }
+                                    //         )
+                                    //     )
+                                    //         ; setLocation(true); setLocal(false)
+                                    // }}
                                     >
                                         <Stack direction={'row'}>
                                             <Box sx={{ width: '230px', fontFamily: 'monospace', fontSize: 15, zIndex: 10, margin: 1 }}>

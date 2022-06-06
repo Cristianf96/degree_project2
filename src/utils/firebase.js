@@ -84,13 +84,15 @@ export async function registrarUsuario(email, name, password, rol, admin, recycl
 }
 
 export async function iniciarSesion(email, password) {
+  let flag = false
   await signInWithEmailAndPassword(auth, email, password)
-    .then((userCredential) => { }).catch((error) => {
+    .then((userCredential) => { flag = true }).catch((error) => {
       const errorCode = error.code;
       const errorMessage = error.message;
       console.log(errorCode)
       console.log(errorMessage)
     });
+    return flag
 }
 
 export function logout() {

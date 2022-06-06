@@ -56,6 +56,7 @@ function Maps() {
   const [openAlert, setOpenAlert] = useState(false);
   const [severity, setSeverity] = useState('');
   const [message, setMessage] = useState('');
+  const [pointId, setpointId] = useState('');
   const [values, setValues] = useState({});
   const [dataRecyclePoint, setDataRecyclePoint] = useState({});
   // const [directionResponse, setDirectionResponse] = useState(null)
@@ -143,6 +144,9 @@ function Maps() {
 
   useEffect(() => {
     const getInformation = async () => {
+      if (reload) {
+        setReload(false)
+      }
       const options = {
         enableHighAccuracy: true,
         timeout: 5000,
@@ -193,19 +197,20 @@ function Maps() {
       if (positions) {
         let Markers = []
         let pointAdmin = []
+        let pointId = []
         positions.forEach((doc) => {
           Markers.push(doc.data())
           if (rol === 'admin' && doc.id === userPositionId[0].data.recyclePoint) {
             pointAdmin.push(doc.data())
+            pointId.push(doc.id)
           }
         })
-        setCenter(pointAdmin[0].Coords)
-        setDataRecyclePoint(pointAdmin[0])
-        // setPosition(pointAdmin[0].Coords)
+        if (rol === 'admin') {
+          setCenter(pointAdmin[0].Coords)
+          setDataRecyclePoint(pointAdmin[0])
+          setpointId(pointId[0])
+        }
         setMarkers(Markers)
-      }
-      if (reload) {
-        setReload(false)
       }
     }
     getInformation()
@@ -273,6 +278,7 @@ function Maps() {
         .then((response) => {
           setCenter(response.data['results'][0].geometry.location)
           setLocation(true)
+          setValues({})
         })
         .catch((error) => {
           console.log(error);
@@ -396,10 +402,13 @@ function Maps() {
             <DialogForum open={openDialogForum} onClose={handleCloseDialog} setReload={setReload} />
           )}
           {openDialogRecyclePoint && (
-            <DialogRecyclePoint open={openDialogRecyclePoint} onClose={handleCloseDialog} setReload={setReload} dataRecyclePoint={dataRecyclePoint} />
+            <DialogRecyclePoint open={openDialogRecyclePoint} onClose={handleCloseDialog} setReload={setReload} dataRecyclePoint={dataRecyclePoint} pointId={pointId} setDataRecyclePoint={setDataRecyclePoint} />
           )}
         </Box>
-        <Snackbar open={openAlert} autoHideDuration={2000} onClose={handleCloseAlert} sx={{ zIndex: 10 }}>
+        <Snackbar open={openAlert} autoHideDuration={2000} onClose={handleCloseAlert} sx={{ zIndex: 10 }} anchorOrigin={{
+          vertical: 'top',
+          horizontal: 'center'
+        }}>
           <Alert onClose={handleCloseAlert} severity={severity} sx={{ width: '100%' }}>
             {message}
           </Alert>
