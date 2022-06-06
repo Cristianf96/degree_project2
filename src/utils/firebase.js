@@ -3,6 +3,7 @@ import { getFirestore } from "firebase/firestore";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
 import { doc, setDoc, getDoc, collection, getDocs, updateDoc, addDoc, deleteDoc } from "firebase/firestore";
 import uniqid from 'uniqid';
+import { sendPasswordResetEmail } from "firebase/auth";
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -17,7 +18,7 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app)
-const auth = getAuth();
+export const auth = getAuth(app);
 
 onAuthStateChanged(auth, async (user) => {
   if (user) {
@@ -92,7 +93,7 @@ export async function iniciarSesion(email, password) {
       console.log(errorCode)
       console.log(errorMessage)
     });
-    return flag
+  return flag
 }
 
 export function logout() {
@@ -123,4 +124,10 @@ export async function addDocs(collectionName, data) {
 
 export async function DeleteDoc(collectionName, documentName) {
   await deleteDoc(doc(db, collectionName, documentName));
+}
+
+export async function sendReset(email) {
+  let flag = false
+  await sendPasswordResetEmail(auth, email).then(() => flag = true).catch((error) => { console.log(error) });
+  return flag
 }
