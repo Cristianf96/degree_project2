@@ -118,7 +118,6 @@ const DialogRecyclePoint = (props) => {
         if (reason === 'clickaway') {
             return;
         }
-
         setOpenAlert(false);
     };
 
