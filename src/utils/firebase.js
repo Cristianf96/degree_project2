@@ -1,7 +1,7 @@
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged } from "firebase/auth";
-import { doc, setDoc, getDoc, collection, getDocs, updateDoc, addDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc, collection, getDocs, updateDoc, addDoc, deleteDoc } from "firebase/firestore";
 import uniqid from 'uniqid';
 
 // Your web app's Firebase configuration
@@ -117,4 +117,8 @@ export async function updateData(collection, document, collectionObject) {
 export async function addDocs(collectionName, data) {
   let queryCollection = collection(db, collectionName)
   await addDoc(queryCollection, data);
+}
+
+export async function DeleteDoc(collectionName, documentName) {
+  await deleteDoc(doc(db, collectionName, documentName));
 }

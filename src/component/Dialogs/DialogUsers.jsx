@@ -118,7 +118,7 @@ const DialogUsers = (props) => {
                 }
             } else {
                 handleClose()
-                props.handleClickAlert('error', 'No coincide la password o tiene menos de 6 caracteres')
+                props.handleClickAlert('error', 'No coincide la password o tiene menos de 7 caracteres')
                 props.onClose()
             }
         } else if (!add && data.email !== '' && data.name === '' && data.password !== '' && data.confirmPassword === '') {

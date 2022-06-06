@@ -401,7 +401,7 @@ const DialogTips = (props) => {
                                                     )
                                                 })}
                                                 <Typography sx={{ margin: 2, fontWeight: '500' }}>
-                                                    Pilas, aceites usado, bombillos flurescentes, electrodomésticos en desuso, electrónicos.
+                                                    Los residuos peligrosos (independientemente del tipo de clasificación realizada), SIEMPRE se deben depositar en los puntos de recolección postconsumo ubicados cerca a su lugar de residencia.
                                                 </Typography>
                                             </AccordionDetails>
                                         </Accordion>

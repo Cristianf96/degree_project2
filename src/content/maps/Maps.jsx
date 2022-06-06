@@ -13,6 +13,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 import MyLocationIcon from '@mui/icons-material/MyLocation';
 import GroupAddIcon from '@mui/icons-material/GroupAdd';
+import GiteIcon from '@mui/icons-material/Gite';
 
 import DialogTips from '../../component/Dialogs/DialogTips';
 import DialogUsers from '../../component/Dialogs/DialogUsers';
@@ -149,6 +150,7 @@ function Maps() {
       };
       navigator.geolocation.getCurrentPosition(success, error, options)
       const found = actions.find(element => element.name === 'Logout');
+      let userPositionId = []
       if (session && !found && rol) {
         if (rol === 'staff') {
           actions = [
@@ -167,14 +169,39 @@ function Maps() {
             { icon: <LogoutIcon />, name: 'Logout' }
           ]
         }
+        if (rol === 'admin') {
+          actions = [
+            { icon: <PersonIcon />, name: 'Profile' },
+            { icon: <TipsAndUpdatesIcon />, name: 'Tips' },
+            { icon: <ForumIcon />, name: 'Forum' },
+            { icon: <GiteIcon />, name: 'Punto' },
+            { icon: <LogoutIcon />, name: 'Logout' }
+          ]
+          const dataUsers = await queryData('users')
+          const user = dataUsers.docs
+          if (user) {
+            user.forEach((doc) => {
+              if (doc.data().uid === session) {
+                userPositionId.push({ data: doc.data(), idUser: doc.id })
+              }
+            })
+          }
+        }
       }
-      const dataUsers = await queryData('locations')
-      const positions = dataUsers.docs
+      const dataLocations = await queryData('locations')
+      const positions = dataLocations.docs
       if (positions) {
         let Markers = []
+        let pointAdmin = []
         positions.forEach((doc) => {
           Markers.push(doc.data())
+          if (rol === 'admin' && doc.id === userPositionId[0].data.recyclePoint) {
+            pointAdmin.push(doc.data())
+          }
         })
+        setCenter(pointAdmin[0].Coords)
+        setDataRecyclePoint(pointAdmin[0])
+        // setPosition(pointAdmin[0].Coords)
         setMarkers(Markers)
       }
       if (reload) {
@@ -188,7 +215,6 @@ function Maps() {
     if (reason === 'clickaway') {
       return;
     }
-
     setOpenAlert(false);
   };
 
@@ -219,6 +245,9 @@ function Maps() {
       case 'Profile':
         setOpenDialogProfile(true)
         break;
+      case 'Punto':
+        handleOpenRecyclePoint(dataRecyclePoint)
+        break;
       default:
         break;
     }
@@ -232,7 +261,7 @@ function Maps() {
     setOpenDialogRecyclePoint(false)
     setValues({})
     handleClose()
-    setDataRecyclePoint(null)
+    // setDataRecyclePoint(null)
   }
 
   const handleSelect = (value) => {
@@ -252,6 +281,7 @@ function Maps() {
   }
 
   const handleOpenRecyclePoint = (recyclePoint) => {
+    // console.log('recyclePoint', recyclePoint)
     // setDestino(recyclePoint.Coords)
     setDataRecyclePoint(recyclePoint)
     setOpenDialogRecyclePoint(true)
