@@ -3,7 +3,10 @@ import { GoogleMap, useLoadScript, Marker } from '@react-google-maps/api'
 import GooglePlacesAutocomplete from 'react-google-places-autocomplete';
 import axios from 'axios';
 
-import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Stack, Box, Typography, TextField, Switch, Chip, Paper, IconButton, Card, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import {
+    Dialog, DialogTitle, DialogContent, DialogActions, Button, Stack, Box,
+    Typography, TextField, Switch, Chip, Paper, IconButton, Card, FormControl, InputLabel, Select, MenuItem, Link
+} from '@mui/material';
 import DoneIcon from '@mui/icons-material/Done';
 import MyLocationIcon from '@mui/icons-material/MyLocation';
 import { styled } from '@mui/material/styles';
@@ -13,6 +16,14 @@ import { registrarUsuario, iniciarSesion, addDocs, queryData } from '../../utils
 import emailjs from '@emailjs/browser';
 import moment from 'moment';
 
+import DialogResetPassword from './DialogResetPassword'
+
+export const validateEmail = (email) => {
+    // eslint-disable-next-line no-useless-escape
+    if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(email)) {
+        return true;
+    }
+};
 
 const DialogUsers = (props) => {
 
@@ -50,6 +61,7 @@ const DialogUsers = (props) => {
     const [local, setLocal] = useState(false);
     const [location, setLocation] = useState(false);
     const [recyclePoint, setRecyclePoint] = React.useState('');
+    const [openResetPassword, setOpenResetPassword] = useState(false)
 
     useEffect(() => {
         const getInformation = async () => {
@@ -99,6 +111,7 @@ const DialogUsers = (props) => {
         setError(false)
         setCreateUsers(false)
         setRecyclingPoint(false)
+        setOpenResetPassword(false)
         setData({ email: '', name: '', password: '', confirmPassword: '', message: '' })
         setDataRecyclingPoint({ name: '', recibe: '', coords: { lat: 0, lng: 0 }, dias: [], dateInicial: '', dateFinal: '' })
         setRecyclePoint('')
@@ -217,14 +230,23 @@ const DialogUsers = (props) => {
         }
     }
 
-    const sendEmail = () => {
+    const sendEmail = async () => {
         // e.preventDefault();
-        emailjs.sendForm('service_zo4kks8', 'template_hu6jnu2', form.current, 'JVvitlmjjpFFhJ_AX')
+        let flag = false
+        await emailjs.sendForm('service_zo4kks8', 'template_hu6jnu2', form.current, 'JVvitlmjjpFFhJ_AX')
             .then((result) => {
                 console.log(result.text);
+                flag = true
             }, (error) => {
                 console.log(error.text);
             });
+
+        if (flag) {
+            props.handleClickAlert('success', 'Se envio el email')
+            props.onClose()
+        } else {
+            props.handleClickAlert('error', 'No se envio')
+        }
     };
 
     const handleChangeChecked = (event) => {
@@ -315,6 +337,19 @@ const DialogUsers = (props) => {
                                     error={error}
                                     helperText={error ? 'Este campo es requerido' : null}
                                 />
+                                <Link
+                                    component="button"
+                                    variant="body2"
+                                    onClick={() => {
+                                        setOpenResetPassword(true)
+                                    }}
+                                    sx={{ color: 'green' }}
+                                >
+                                    ¿Olvidaste tu contraseña?
+                                </Link>
+                                {openResetPassword && (
+                                    <DialogResetPassword open={openResetPassword} handleClose={handleClose} validateEmail={validateEmail} />
+                                )}
                             </Box>
                         )}
                         {signUp && (
