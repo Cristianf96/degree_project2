@@ -227,7 +227,7 @@ const DialogRecyclePoint = (props) => {
                                 <TextField
                                     margin="dense"
                                     id="name"
-                                    label="Name"
+                                    label="Nombre del punto"
                                     name='name'
                                     type="text"
                                     fullWidth

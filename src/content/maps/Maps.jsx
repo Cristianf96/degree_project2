@@ -5,7 +5,6 @@ import axios from 'axios';
 
 import { Box, SpeedDial, SpeedDialAction, Backdrop, Snackbar, IconButton, Card, Stack } from '@mui/material';
 import MuiAlert from '@mui/material/Alert';
-// import SearchIcon from '@mui/icons-material/Search';
 import TipsAndUpdatesIcon from '@mui/icons-material/TipsAndUpdates';
 import PersonIcon from '@mui/icons-material/Person';
 import ForumIcon from '@mui/icons-material/Forum';
@@ -24,9 +23,9 @@ import DialogRecyclePoint from '../../component/Dialogs/DialogRecyclePoint';
 import { logout, queryData } from '../../utils/firebase';
 
 let actions = [
-  { icon: <TipsAndUpdatesIcon />, name: 'Tips' },
-  { icon: <PersonIcon />, name: 'Users' },
-  { icon: <ForumIcon />, name: 'Forum' },
+  { icon: <TipsAndUpdatesIcon />, name: 'Consejos' },
+  { icon: <PersonIcon />, name: 'Usuarios' },
+  { icon: <ForumIcon />, name: 'Foro' },
 ];
 
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -153,33 +152,33 @@ function Maps() {
         maximumAge: 0
       };
       navigator.geolocation.getCurrentPosition(success, error, options)
-      const found = actions.find(element => element.name === 'Logout');
+      const found = actions.find(element => element.name === 'Cerrar sesion');
       let userPositionId = []
       if (session && !found && rol) {
         if (rol === 'staff') {
           actions = [
-            { icon: <PersonIcon />, name: 'Profile' },
-            { icon: <TipsAndUpdatesIcon />, name: 'Tips' },
-            { icon: <ForumIcon />, name: 'Forum' },
-            { icon: <GroupAddIcon />, name: 'Create' },
-            { icon: <LogoutIcon />, name: 'Logout' },
+            { icon: <PersonIcon />, name: 'Perfil' },
+            { icon: <TipsAndUpdatesIcon />, name: 'Consejos' },
+            { icon: <ForumIcon />, name: 'Foro' },
+            { icon: <GroupAddIcon />, name: 'Crear' },
+            { icon: <LogoutIcon />, name: 'Cerrar sesion' },
           ]
         }
         if (rol === 'usuario') {
           actions = [
-            { icon: <PersonIcon />, name: 'Profile' },
-            { icon: <TipsAndUpdatesIcon />, name: 'Tips' },
-            { icon: <ForumIcon />, name: 'Forum' },
-            { icon: <LogoutIcon />, name: 'Logout' }
+            { icon: <PersonIcon />, name: 'Perfil' },
+            { icon: <TipsAndUpdatesIcon />, name: 'Consejos' },
+            { icon: <ForumIcon />, name: 'Foro' },
+            { icon: <LogoutIcon />, name: 'Cerrar sesion' }
           ]
         }
         if (rol === 'admin') {
           actions = [
-            { icon: <PersonIcon />, name: 'Profile' },
-            { icon: <TipsAndUpdatesIcon />, name: 'Tips' },
-            { icon: <ForumIcon />, name: 'Forum' },
+            { icon: <PersonIcon />, name: 'Perfil' },
+            { icon: <TipsAndUpdatesIcon />, name: 'Consejos' },
+            { icon: <ForumIcon />, name: 'Foro' },
             { icon: <GiteIcon />, name: 'Punto' },
-            { icon: <LogoutIcon />, name: 'Logout' }
+            { icon: <LogoutIcon />, name: 'Cerrar sesion' }
           ]
           const dataUsers = await queryData('users')
           const user = dataUsers.docs
@@ -231,23 +230,23 @@ function Maps() {
 
   const handleOption = (action) => {
     switch (action) {
-      case 'Tips':
+      case 'Consejos':
         setOpenDialogTips(true)
         break;
-      case 'Users':
+      case 'Usuarios':
         setOpenDialogUsers(true)
         break;
-      case 'Logout':
+      case 'Cerrar sesion':
         logout()
         window.location.reload()
         break;
-      case 'Forum':
+      case 'Foro':
         setOpenDialogForum(true)
         break;
-      case 'Create':
+      case 'Crear':
         setOpenDialogUsers(true)
         break
-      case 'Profile':
+      case 'Perfil':
         setOpenDialogProfile(true)
         break;
       case 'Punto':
@@ -270,7 +269,6 @@ function Maps() {
   }
 
   const handleSelect = (value) => {
-    console.log('value :>> ', value);
     setLocal(false)
     if (value) {
       const url = `https://maps.googleapis.com/maps/api/geocode/json?place_id=${value.value.place_id}&key=${process.env.REACT_APP_GOOGLEMAPS_APIKEY}`
