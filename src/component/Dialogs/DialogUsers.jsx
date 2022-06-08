@@ -228,6 +228,7 @@ const DialogUsers = (props) => {
                 { key: 6, label: 'Domingo', state: false },
             ])
         }
+        props.setReload(true)
     }
 
     const sendEmail = async () => {
@@ -288,7 +289,7 @@ const DialogUsers = (props) => {
             maxWidth={'md'}
         >
             <DialogTitle>
-                Users
+                Usuarios
             </DialogTitle>
             <DialogContent dividers>
                 {rol !== 'staff' ? (
@@ -362,7 +363,7 @@ const DialogUsers = (props) => {
                                         autoFocus
                                         margin="dense"
                                         id="email"
-                                        label="Email Address"
+                                        label="Email"
                                         name='email'
                                         type="email"
                                         fullWidth
@@ -375,7 +376,7 @@ const DialogUsers = (props) => {
                                         // autoFocus
                                         margin="dense"
                                         id="name"
-                                        label="Name"
+                                        label="Nombre"
                                         name='name'
                                         type="text"
                                         fullWidth
@@ -391,7 +392,7 @@ const DialogUsers = (props) => {
                                                     // autoFocus
                                                     margin="dense"
                                                     id="password"
-                                                    label="Password"
+                                                    label="Contraseña"
                                                     type="password"
                                                     fullWidth
                                                     variant="outlined"
@@ -406,7 +407,7 @@ const DialogUsers = (props) => {
                                                     fullWidth
                                                     margin="dense"
                                                     id="confirmPassword"
-                                                    label="Confirm password"
+                                                    label="Confirmar contraseña"
                                                     type="password"
                                                     variant="outlined"
                                                     onChange={(e) => setData(data => ({ ...data, confirmPassword: e.target.value }))}
@@ -421,7 +422,7 @@ const DialogUsers = (props) => {
                                             // autoFocus
                                             margin="dense"
                                             id="message"
-                                            label="Message"
+                                            label="Mensaje"
                                             name='message'
                                             type="text"
                                             fullWidth

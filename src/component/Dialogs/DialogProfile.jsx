@@ -167,13 +167,13 @@ const DialogProfile = (props) => {
                                     InputProps={{ readOnly: true, }}
                                 />
                                 {!readOnly && (
-                                    <Typography variant='body2' color={'error'} marginBottom={1}>
+                                    <Typography variant='body2' color={'error'} marginBottom={2}>
                                         Si quiere cambiar su contraseña debe hacer click en la opcion de restablecer contraseña desde la ventana de inicio de sesion
                                     </Typography>
                                 )}
                                 <TextField
                                     fullWidth
-                                    label={'Password'}
+                                    label={'Contraseña'}
                                     value={!readOnly ? dataEdit.password : isUserLoggedIn[0].password}
                                     onChange={(e) => setDataEdit(dataEdit => ({ ...dataEdit, password: e.target.value }))}
                                     type={'password'}
@@ -182,7 +182,7 @@ const DialogProfile = (props) => {
                                 />
                                 <TextField
                                     fullWidth
-                                    label={'Confirm password'}
+                                    label={'Confirmar contraseña'}
                                     value={!readOnly ? dataEdit.cPassword : isUserLoggedIn[0].password}
                                     onChange={(e) => setDataEdit(dataEdit => ({ ...dataEdit, cPassword: e.target.value }))}
                                     type={'password'}

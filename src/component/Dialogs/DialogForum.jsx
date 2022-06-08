@@ -108,7 +108,7 @@ const DialogForum = (props) => {
             <DialogTitle>
                 <Stack direction={'row'} justifyContent={'space-between'}>
                     <Box>
-                        Forum
+                        Foro
                     </Box>
                     {rol && rol === 'usuario' && (
                         <div>
