@@ -359,10 +359,10 @@ function Maps() {
               </Box>
             </Box>
             {local && (
-              <Marker position={position} icon={'/pin.png'} onCLick={() => console.log('este es su ubicacion 1')} />
+              <Marker position={position} icon={'/pin.png'} />
             )}
             {location && (
-              <Marker position={center} icon={'/pin.png'} onCLick={() => console.log('este es su ubicacion 2')} />
+              <Marker position={center} icon={'/pin.png'} />
             )}
             {markers.map((marker, key) => {
               return (

@@ -54,8 +54,8 @@ const DialogRecyclePoint = (props) => {
 
     useEffect(() => {
         const getInformation = () => {
-            console.log('props.pointId :>> ', props.pointId);
-            console.log('props.dataRecyclePoint :>> ', props.dataRecyclePoint);
+            // console.log('props.pointId :>> ', props.pointId);
+            // console.log('props.dataRecyclePoint :>> ', props.dataRecyclePoint);
             if (load) {
                 setLoad(false)
             }
