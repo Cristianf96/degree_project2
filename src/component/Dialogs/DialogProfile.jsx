@@ -155,8 +155,8 @@ const DialogProfile = (props) => {
                                     label={'Email'}
                                     value={!readOnly ? dataEdit.email : isUserLoggedIn[0].email}
                                     onChange={(e) => setDataEdit(dataEdit => ({ ...dataEdit, email: e.target.value }))}
-                                    InputProps={{ readOnly: readOnly, }}
-                                    required
+                                    InputProps={{ readOnly: true, }}
+                                    // required
                                 />
                                 <TextField
                                     sx={{ marginBottom: 2 }}
