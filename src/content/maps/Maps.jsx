@@ -56,6 +56,7 @@ function Maps() {
   const [severity, setSeverity] = useState('');
   const [message, setMessage] = useState('');
   const [pointId, setpointId] = useState('');
+  const [pointIdClik, setpointIdClick] = useState('');
   const [values, setValues] = useState({});
   const [dataRecyclePoint, setDataRecyclePoint] = useState({});
   // const [directionResponse, setDirectionResponse] = useState(null)
@@ -198,7 +199,7 @@ function Maps() {
         let pointAdmin = []
         let pointId = []
         positions.forEach((doc) => {
-          Markers.push(doc.data())
+          Markers.push({ data: doc.data(), id: doc.id })
           if (rol === 'admin' && doc.id === userPositionId[0].data.recyclePoint) {
             pointAdmin.push(doc.data())
             pointId.push(doc.id)
@@ -284,10 +285,11 @@ function Maps() {
     }
   }
 
-  const handleOpenRecyclePoint = (recyclePoint) => {
+  const handleOpenRecyclePoint = (recyclePoint, id) => {
     // console.log('recyclePoint', recyclePoint)
-    // setDestino(recyclePoint.Coords)
+    // console.log('id :>> ', id);
     setDataRecyclePoint(recyclePoint)
+    setpointIdClick(id)
     setOpenDialogRecyclePoint(true)
   }
 
@@ -364,7 +366,7 @@ function Maps() {
             )}
             {markers.map((marker, key) => {
               return (
-                <Marker key={key} position={marker.Coords} icon={'/centro-de-reciclaje-3d-30.png'} onClick={() => { handleOpenRecyclePoint(marker); }} />
+                <Marker key={key} position={marker.data.Coords} icon={'/centro-de-reciclaje-3d-30.png'} onClick={() => { handleOpenRecyclePoint(marker.data, marker.id); }} />
               )
             })}
             {/* {directionResponse && <DirectionsRenderer directions={directionResponse} />} */}
@@ -400,7 +402,15 @@ function Maps() {
             <DialogForum open={openDialogForum} onClose={handleCloseDialog} setReload={setReload} />
           )}
           {openDialogRecyclePoint && (
-            <DialogRecyclePoint open={openDialogRecyclePoint} onClose={handleCloseDialog} setReload={setReload} dataRecyclePoint={dataRecyclePoint} pointId={pointId} setDataRecyclePoint={setDataRecyclePoint} />
+            <DialogRecyclePoint
+              open={openDialogRecyclePoint}
+              onClose={handleCloseDialog}
+              setReload={setReload}
+              dataRecyclePoint={dataRecyclePoint}
+              pointId={pointId}
+              setDataRecyclePoint={setDataRecyclePoint}
+              pointIdClik={pointIdClik}
+            />
           )}
         </Box>
         <Snackbar open={openAlert} autoHideDuration={2000} onClose={handleCloseAlert} sx={{ zIndex: 10 }} anchorOrigin={{

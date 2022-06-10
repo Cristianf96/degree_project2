@@ -54,6 +54,8 @@ const DialogRecyclePoint = (props) => {
 
     useEffect(() => {
         const getInformation = () => {
+            console.log('props.pointId :>> ', props.pointId);
+            console.log('props.dataRecyclePoint :>> ', props.dataRecyclePoint);
             if (load) {
                 setLoad(false)
             }
@@ -102,8 +104,6 @@ const DialogRecyclePoint = (props) => {
 
     const updateDataUser = async (status) => {
         if (status) {
-            console.log('dataEdit :>> ', dataEdit);
-            console.log('props.pointId :>> ', props.pointId);
             await updateData('locations', props.pointId, dataEdit)
             handleClickAlert('success', 'El perfil se a actualizado satisfactoriamente')
             props.setDataRecyclePoint(dataEdit)
@@ -118,7 +118,7 @@ const DialogRecyclePoint = (props) => {
         if (reason === 'clickaway') {
             return;
         }
-        
+
         setOpenAlert(false);
     };
 
@@ -137,7 +137,20 @@ const DialogRecyclePoint = (props) => {
                     </Typography>
                     <Box>
                         <Stack direction={'row'} spacing={1}>
-                            {rol === 'admin' && (
+                            {rol === 'admin' && props.pointIdClik === props.pointId && (
+                                <Tooltip title={edit ? "Edit" : 'Save'}>
+                                    {edit ? (
+                                        <IconButton onClick={() => handleOpenEdit(props.dataRecyclePoint)}>
+                                            <EditIcon sx={{ color: 'black' }} />
+                                        </IconButton>
+                                    ) : (
+                                        <IconButton onClick={() => updateDataUser(true)}>
+                                            <SaveIcon sx={{ color: 'green' }} />
+                                        </IconButton>
+                                    )}
+                                </Tooltip>
+                            )}
+                            {rol === 'staff' && (
                                 <Tooltip title={edit ? "Edit" : 'Save'}>
                                     {edit ? (
                                         <IconButton onClick={() => handleOpenEdit(props.dataRecyclePoint)}>
