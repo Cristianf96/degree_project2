@@ -25,7 +25,7 @@ import { logout, queryData } from '../../utils/firebase';
 let actions = [
   { icon: <TipsAndUpdatesIcon />, name: 'Consejos' },
   { icon: <PersonIcon />, name: 'Usuarios' },
-  { icon: <ForumIcon />, name: 'Foro' },
+  { icon: <ForumIcon />, name: 'Solicitudes' },
 ];
 
 const Alert = React.forwardRef(function Alert(props, ref) {
@@ -160,7 +160,7 @@ function Maps() {
           actions = [
             { icon: <PersonIcon />, name: 'Perfil' },
             { icon: <TipsAndUpdatesIcon />, name: 'Consejos' },
-            { icon: <ForumIcon />, name: 'Foro' },
+            { icon: <ForumIcon />, name: 'Solicitudes' },
             { icon: <GroupAddIcon />, name: 'Crear' },
             { icon: <LogoutIcon />, name: 'Cerrar sesion' },
           ]
@@ -169,7 +169,7 @@ function Maps() {
           actions = [
             { icon: <PersonIcon />, name: 'Perfil' },
             { icon: <TipsAndUpdatesIcon />, name: 'Consejos' },
-            { icon: <ForumIcon />, name: 'Foro' },
+            { icon: <ForumIcon />, name: 'Solicitudes' },
             { icon: <LogoutIcon />, name: 'Cerrar sesion' }
           ]
         }
@@ -177,7 +177,7 @@ function Maps() {
           actions = [
             { icon: <PersonIcon />, name: 'Perfil' },
             { icon: <TipsAndUpdatesIcon />, name: 'Consejos' },
-            { icon: <ForumIcon />, name: 'Foro' },
+            { icon: <ForumIcon />, name: 'Solicitudes' },
             { icon: <GiteIcon />, name: 'Punto' },
             { icon: <LogoutIcon />, name: 'Cerrar sesion' }
           ]
@@ -241,7 +241,7 @@ function Maps() {
         logout()
         window.location.reload()
         break;
-      case 'Foro':
+      case 'Solicitudes':
         setOpenDialogForum(true)
         break;
       case 'Crear':
