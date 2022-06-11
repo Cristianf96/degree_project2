@@ -68,7 +68,7 @@ const DialogRecyclePoint = (props) => {
                 let count = 0
                 if (dataF) {
                     dataF.forEach((doc) => {
-                        if(doc.data().adminId && doc.data().adminId === uid){
+                        if (doc.data().adminId && doc.data().adminId === uid) {
                             count++
                         }
                     })
@@ -183,7 +183,7 @@ const DialogRecyclePoint = (props) => {
                                     </Tooltip>
                                 </>
                             )}
-                            <Badge badgeContent={count} color="primary">
+                            <Badge badgeContent={rol === 'admin' && props.pointIdClik === props.pointId ? count : 0} color="primary">
                                 <GiteIcon fontSize='large' />
                             </Badge>
                         </Stack>
