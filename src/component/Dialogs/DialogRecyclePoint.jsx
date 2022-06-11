@@ -3,7 +3,7 @@ import { GoogleMap, useLoadScript, Marker } from '@react-google-maps/api'
 import GooglePlacesAutocomplete from 'react-google-places-autocomplete';
 import axios from 'axios';
 import moment from 'moment';
-import { updateData } from '../../utils/firebase';
+import { queryData, updateData } from '../../utils/firebase';
 
 import { Dialog, DialogTitle, DialogContent, DialogActions, Button, Stack, Typography, Box, Paper, Chip, Badge, Divider, IconButton, Tooltip, TextField, Card, Snackbar } from '@mui/material';
 import GiteIcon from '@mui/icons-material/Gite';
@@ -50,18 +50,34 @@ const DialogRecyclePoint = (props) => {
     const [severity, setSeverity] = useState('');
     const [message, setMessage] = useState('');
     const [openAlert, setOpenAlert] = useState(false);
-    // const [center, setCenter] = useState(null)
+    const [count, setCount] = useState(0)
 
     useEffect(() => {
-        const getInformation = () => {
+        const getInformation = async () => {
             // console.log('props.pointId :>> ', props.pointId);
             // console.log('props.dataRecyclePoint :>> ', props.dataRecyclePoint);
             if (load) {
                 setLoad(false)
             }
+            if (rol === 'admin') {
+                console.log('props.pointIdClik :>> ', props.pointIdClik);
+                const uid = localStorage.getItem('user')
+                console.log('uid :>> ', uid);
+                const dataForum = await queryData('forum')
+                const dataF = dataForum.docs
+                let count = 0
+                if (dataF) {
+                    dataF.forEach((doc) => {
+                        if(doc.data().adminId && doc.data().adminId === uid){
+                            count++
+                        }
+                    })
+                    setCount(count)
+                }
+            }
         }
         getInformation()
-    }, [load, props])
+    }, [load, props, rol])
 
 
     const handleSelect = (value) => {
@@ -138,32 +154,36 @@ const DialogRecyclePoint = (props) => {
                     <Box>
                         <Stack direction={'row'} spacing={1}>
                             {rol === 'admin' && props.pointIdClik === props.pointId && (
-                                <Tooltip title={edit ? "Edit" : 'Save'}>
-                                    {edit ? (
-                                        <IconButton onClick={() => handleOpenEdit(props.dataRecyclePoint)}>
-                                            <EditIcon sx={{ color: 'black' }} />
-                                        </IconButton>
-                                    ) : (
-                                        <IconButton onClick={() => updateDataUser(true)}>
-                                            <SaveIcon sx={{ color: 'green' }} />
-                                        </IconButton>
-                                    )}
-                                </Tooltip>
+                                <>
+                                    <Tooltip title={edit ? "Edit" : 'Save'}>
+                                        {edit ? (
+                                            <IconButton onClick={() => handleOpenEdit(props.dataRecyclePoint)}>
+                                                <EditIcon sx={{ color: 'black' }} />
+                                            </IconButton>
+                                        ) : (
+                                            <IconButton onClick={() => updateDataUser(true)}>
+                                                <SaveIcon sx={{ color: 'green' }} />
+                                            </IconButton>
+                                        )}
+                                    </Tooltip>
+                                </>
                             )}
                             {rol === 'staff' && (
-                                <Tooltip title={edit ? "Edit" : 'Save'}>
-                                    {edit ? (
-                                        <IconButton onClick={() => handleOpenEdit(props.dataRecyclePoint)}>
-                                            <EditIcon sx={{ color: 'black' }} />
-                                        </IconButton>
-                                    ) : (
-                                        <IconButton onClick={() => updateDataUser(true)}>
-                                            <SaveIcon sx={{ color: 'green' }} />
-                                        </IconButton>
-                                    )}
-                                </Tooltip>
+                                <>
+                                    <Tooltip title={edit ? "Edit" : 'Save'}>
+                                        {edit ? (
+                                            <IconButton onClick={() => handleOpenEdit(props.dataRecyclePoint)}>
+                                                <EditIcon sx={{ color: 'black' }} />
+                                            </IconButton>
+                                        ) : (
+                                            <IconButton onClick={() => updateDataUser(true)}>
+                                                <SaveIcon sx={{ color: 'green' }} />
+                                            </IconButton>
+                                        )}
+                                    </Tooltip>
+                                </>
                             )}
-                            <Badge badgeContent={0} color="primary">
+                            <Badge badgeContent={count} color="primary">
                                 <GiteIcon fontSize='large' />
                             </Badge>
                         </Stack>

@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react'
 
-import { TextField, Dialog, DialogTitle, DialogContent, DialogActions, Button, Stack, Popover, Typography, Box, Card, CardContent, CardActions, Slide, Tooltip, IconButton } from '@mui/material';
+import { TextField, Dialog, DialogTitle, DialogContent, DialogActions, Button, Badge, Stack, Popover, Typography, Box, Card, CardContent, CardActions, Slide, Tooltip, IconButton } from '@mui/material';
 import ForumIcon from '@mui/icons-material/Forum';
 import LinearProgress from '@mui/material/LinearProgress';
+import GiteIcon from '@mui/icons-material/Gite';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import RestoreFromTrashIcon from '@mui/icons-material/RestoreFromTrash';
-import { addDocs, queryData, DeleteDoc } from '../../utils/firebase';
+import { addDocs, queryData, updateData } from '../../utils/firebase';
 
 const Transition = React.forwardRef(function Transition(props, ref) {
     return <Slide direction="up" ref={ref} {...props} />;
@@ -23,6 +24,7 @@ const DialogForum = (props) => {
     const [dataForum, setDataForum] = useState([])
     const rol = localStorage.getItem('rol') ?? ""
     const uid = localStorage.getItem('user') ?? ""
+    const [count, setCount] = useState(0)
 
     useEffect(() => {
         const getInformation = async () => {
@@ -44,15 +46,26 @@ const DialogForum = (props) => {
             const dataF = dataForum.docs
             if (dataF) {
                 const objForum = []
+                let count = 0
                 dataF.forEach((doc) => {
-                    objForum.push({ data: doc.data(), id: doc.id })
+                    if (rol === 'staff') {
+                        if (doc.data().state) {
+                            objForum.push({ data: doc.data(), id: doc.id })
+                            count++
+                        }
+                    } else {
+                        if (!doc.data().state) {
+                            objForum.push({ data: doc.data(), id: doc.id })
+                        }
+                    }
                 })
+                setCount(count)
                 setDataForum(objForum)
             }
             setLoad(true)
         }
         getInformation()
-    }, [reload, uid])
+    }, [reload, rol, uid])
 
     const handlePost = async () => {
         if (value && value.material !== '' && value.descripcion !== '' && value.movil !== '' && value.email !== '') {
@@ -93,7 +106,8 @@ const DialogForum = (props) => {
     }
 
     const aceptarSAolicitud = async (data) => {
-        await DeleteDoc('forum', data)
+        // await DeleteDoc('forum', data)
+        await updateData('forum', data, { state: true, adminId: uid })
         props.setReload(true)
         setReload(true)
     }
@@ -108,7 +122,7 @@ const DialogForum = (props) => {
             <DialogTitle>
                 <Stack direction={'row'} justifyContent={'space-between'}>
                     <Box>
-                        Foro
+                        {rol === 'staff' ? 'Solicitudes aceptadas' : 'Solicitudes'}
                     </Box>
                     {rol && rol === 'usuario' && (
                         <div>
@@ -163,6 +177,11 @@ const DialogForum = (props) => {
                                 </Box>
                             </Popover>
                         </div>
+                    )}
+                    {rol === 'staff' && (
+                        <Badge badgeContent={count} color="primary">
+                            <GiteIcon fontSize='large' />
+                        </Badge>
                     )}
                 </Stack>
             </DialogTitle>
