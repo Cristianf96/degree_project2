@@ -41,7 +41,6 @@ function Maps() {
   const [center, setCenter] = useState(null)
   const [markers, setMarkers] = useState([]);
   const [position, setPosition] = useState(null)
-  // const [destino, setDestino] = useState(null)
   const [map, setMap] = useState(/** @type google.maps.Map */(null))
   const [local, setLocal] = useState(false);
   const [location, setLocation] = useState(false);
@@ -59,12 +58,6 @@ function Maps() {
   const [pointIdClik, setpointIdClick] = useState('');
   const [values, setValues] = useState({});
   const [dataRecyclePoint, setDataRecyclePoint] = useState({});
-  // const [directionResponse, setDirectionResponse] = useState(null)
-  // const [distance, setDistance] = useState('')
-  // const [duration, setDuration] = useState('')
-
-  // const originRef = useRef()
-  // const destinationRef = useRef()
 
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.REACT_APP_GOOGLEMAPS_APIKEY,
@@ -73,55 +66,6 @@ function Maps() {
 
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
-
-  // const calculateRoute = async () => {
-  //   // if(directionResponse){
-  //   //   clearRoute()
-  //   //   calculateRoute()
-  //   // }
-  //   const arrayPosition = []
-  //   const arrayDestino = []
-  //   Object.keys(position).forEach((item) => {
-  //     if (item === 'lat') {
-  //       arrayPosition.push(position[item])
-  //     } else {
-  //       arrayPosition.push(position[item])
-  //     }
-  //   })
-  //   Object.keys(destino).forEach((item) => {
-  //     if (item === 'lat') {
-  //       arrayDestino.push(destino[item])
-  //     } else {
-  //       arrayDestino.push(destino[item])
-  //     }
-  //   })
-  //   const stringPosition = arrayPosition.toString()
-  //   const stringDestino = arrayDestino.toString()
-  //   if (stringDestino === '' || stringPosition === '') return
-
-  //   // eslint-disable-next-line no-undef
-  //   const directionsService = new google.maps.DirectionsService()
-  //   const results = await directionsService.route({
-  //     origin: stringPosition,
-  //     destination: stringDestino,
-  //     // eslint-disable-next-line no-undef
-  //     travelMode: google.maps.TravelMode.DRIVING,
-  //   })
-  //   if (results) {
-  //     setDirectionResponse(results)
-  //     handleCloseDialog()
-  //   }
-  //   // console.log('results.routes[0].legs[0].distance.text :>> ', results.routes[0].legs[0].distance.text);
-  //   // console.log('results.routes[0].legs[0].duration.text :>> ', results.routes[0].legs[0].duration.text);
-  // }
-
-  // const clearRoute = () => {
-  //   setDirectionResponse(null)
-  //   // setDistance('')
-  //   // setDuration('')
-  //   // originRef.current.value = ''
-  //   // destinationRef.current.value = ''
-  // }
 
   function success(pos) {
     var crd = pos.coords;
@@ -286,8 +230,6 @@ function Maps() {
   }
 
   const handleOpenRecyclePoint = (recyclePoint, id) => {
-    // console.log('recyclePoint', recyclePoint)
-    // console.log('id :>> ', id);
     setDataRecyclePoint(recyclePoint)
     setpointIdClick(id)
     setOpenDialogRecyclePoint(true)
@@ -369,7 +311,6 @@ function Maps() {
                 <Marker key={key} position={marker.data.Coords} icon={'/centro-de-reciclaje-3d-30.png'} onClick={() => { handleOpenRecyclePoint(marker.data, marker.id); }} />
               )
             })}
-            {/* {directionResponse && <DirectionsRenderer directions={directionResponse} />} */}
           </GoogleMap>
         </Box>
         <Box sx={{
@@ -378,7 +319,6 @@ function Maps() {
           left: 20,
           zIndex: 1,
         }}>
-          {/* <DialogSearch open={openDialogSearch} onClose={handleCloseDialog} setReload={setReload} /> */}
           {openDialogProfile && (
             <DialogProfile open={openDialogProfile} onClose={handleCloseDialog} setReload={setReload} />
           )}
@@ -390,9 +330,6 @@ function Maps() {
           )}
           <Card sx={{ marginTop: '85vh', borderRadius: 20 }}>
             <Stack>
-              {/* <IconButton aria-label="navigate" size="large" color={'inherit'}>
-                <NavigationIcon fontSize="inherit" />
-              </IconButton> */}
               <IconButton aria-label="location" size="large" color={'inherit'} onClick={() => local ? map.panTo(center) : setReload(true)}>
                 <MyLocationIcon fontSize="inherit" />
               </IconButton>
